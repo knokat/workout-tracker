@@ -12,9 +12,10 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0d0d1a;--bg2:#10102a;--bg3:#141428;--bg4:#1c1c38;--brd:#252545;--brd2:#3d3d65;--t1:#fff;--t2:#ddd;--t3:#7a7e95;--t4:#5a5e75;--acc:#00d4aa;--wrn:#ff9f43;--dng:#ff6b6b;--prp:#c792ea;--accA:rgba(0,212,170,.15);--wrnA:rgba(255,159,67,.15);--dngA:rgba(255,107,107,.15)}
 body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;min-height:100dvh;overflow-x:hidden}
-input{background:var(--bg4);border:2px solid var(--brd2);border-radius:8px;color:#fff;padding:10px;font-size:15px;font-weight:600;width:100%;outline:none;font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s}
-input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accA)}
+input,select{background:var(--bg4);border:2px solid var(--brd2);border-radius:8px;color:#fff;padding:10px;font-size:17px;font-weight:600;width:100%;outline:none;font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accA)}
 input::placeholder{color:var(--t4);font-weight:400}
+select option{background:var(--bg4);color:#fff}
 button{cursor:pointer;border:none;font-family:inherit}
 button:active{opacity:.7}
 #root{max-width:480px;margin:0 auto}
@@ -24,434 +25,302 @@ button:active{opacity:.7}
 <body>
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#00d4aa;font-size:18px">🏋️ Laden...</div></div>
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { html, render, Component } from 'https://unpkg.com/htm/preact/standalone.module.js';
-import { useState, useEffect, useRef, useCallback } from 'https://unpkg.com/htm/preact/standalone.module.js';
+import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import{html,render}from'https://unpkg.com/htm/preact/standalone.module.js';
+import{useState,useEffect,useRef}from'https://unpkg.com/htm/preact/standalone.module.js';
+const sb=createClient('https://zkqfeqtnoxgoepmykupd.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprcWZlcXRub3hnb2VwbXlrdXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDU3NzcsImV4cCI6MjA4Nzg4MTc3N30.Uz4VTfFd76SNiP8HxOr_NFl-O1GuTPMNpQ9cZXig89E');
 
-const sb = createClient('https://zkqfeqtnoxgoepmykupd.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprcWZlcXRub3hnb2VwbXlrdXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDU3NzcsImV4cCI6MjA4Nzg4MTc3N30.Uz4VTfFd76SNiP8HxOr_NFl-O1GuTPMNpQ9cZXig89E');
+const BANDS=[
+{id:"none",label:"Kein Band",kg:0},
+{id:"gelb",label:"🟡 Gelb (5-15lbs)",kg:4.5},
+{id:"rot",label:"🔴 Rot (15-35lbs)",kg:11},
+{id:"schwarz",label:"⚫ Schwarz (30-60lbs)",kg:20},
+{id:"lila",label:"🟣 Lila (40-80lbs)",kg:27},
+{id:"blau",label:"🔵 Blau (80-170lbs)",kg:57}];
 
-const PLANS={1:{name:"Tag 1",label:"Lower Body",icon:"\u{1F9B5}",loc:"HomeGym",wu:[
-{id:"w1",n:"Hip Hurdles",r:"10"},{id:"w2",n:"90/90 Transitions",r:"10"},{id:"w3",n:"90/90 Hip Extension",r:"10/S"},
-{id:"w4",n:"Seated Straight Leg Raises",r:"10/S"},{id:"w5",n:"Hip Flexor Lunges",r:"10/S"},
-{id:"w6",n:"Deep Lateral Lunges",r:"10/S",nt:"\u26a0\ufe0f knieschmerzfrei"},{id:"w7",n:"Deep Squats",r:"10",nt:"\u26a0\ufe0f knieschmerzfrei"},
-{id:"w8",n:"Side Plank",r:"30-60s/S",nt:"Short\u2192Full\u2192Hip Abd."},{id:"w9",n:"Banded Lat./Crab Walks",r:"10-12/S",nt:"Band Knie\u2192Kn\u00f6chel"},
-{id:"w10",n:"Wall Sit",r:"30-45s",nt:"Knie-Prep"}],
-ex:[
-{id:"e1",n:"\u2764\ufe0f RDL",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Liebling!",u:0},
-{id:"e2",n:"\u2764\ufe0f Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Liebling!",u:0},
-{id:"e3",n:"BW Squat Full ROM",s:3,rp:"10-15",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Alltagsziel! Assistance ok",u:0,bw:1},
+const P={1:{nm:"Tag 1",lb:"Lower Body",ic:"🦵",lo:"HomeGym",
+wu:[{id:"w1",n:"Hip Hurdles",r:"10"},{id:"w2",n:"90/90 Transitions",r:"10"},{id:"w3",n:"90/90 Hip Extension",r:"10/S"},{id:"w4",n:"Seated Straight Leg Raises",r:"10/S"},{id:"w5",n:"Hip Flexor Lunges",r:"10/S"},{id:"w6",n:"Deep Lateral Lunges",r:"10/S",nt:"⚠️ knieschmerzfrei"},{id:"w7",n:"Deep Squats",r:"10",nt:"⚠️ knieschmerzfrei"},{id:"w9",n:"Banded Lat./Crab Walks",r:"10-12/S",nt:"Band Knie→Knöchel"}],
+wt:[{id:"wt1",n:"Side Plank",sec:45,nt:"Short→Full→Hip Abd., pro Seite"},{id:"wt2",n:"Wall Sit",sec:35,nt:"Knie-Prep"}],
+ex:[{id:"e1",n:"❤️ RDL",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Liebling!",u:0},
+{id:"e2",n:"❤️ Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Liebling!",u:0},
+{id:"e3",n:"BW Squat Full ROM",s:3,rp:"10-15",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Alltagsziel!",u:0},
 {id:"e4",n:"Swiss Ball Leg Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Hamstrings",w:"Anderer Winkel",u:0},
-{id:"e5",n:"\u2b50 Tempo Split Squat",s:3,rp:"8-10",tp:"3-1-1-0",rs:75,m:"Quads, Glutes",w:"Wenn Squat 3\u00d715 ok",u:1,opt:1},
-{id:"e6",n:"Standing Hip Flexion",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Hip Flexoren",w:"E3 Hip Resilience",u:1},
-{id:"e7",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Fu\u00dfsohlen",u:1,bw:1},
-{id:"e8",n:"Copenhagen Plank",s:2,rp:"\u2014",tp:"iso",rs:60,m:"Adduktoren, Core",w:"H\u00fcftstabilit\u00e4t",u:1,iso:1,iS:30}
-]},
-2:{name:"Tag 2",label:"Upper Body",icon:"\u{1F4AA}",loc:"HomeGym",wu:[
-{id:"w1",n:"Shoulder Dislocates",r:"10",nt:"Band"},{id:"w2",n:"Around the Worlds",r:"10/S"},
-{id:"w3",n:"Band Pull Aparts",r:"10"},{id:"w4",n:"Forward Windmills",r:"10"},
-{id:"w5",n:"Backward Windmills",r:"10"},{id:"w6",n:"Arm Swings Crisscross",r:"10"},
-{id:"w7",n:"Banded External Rotations",r:"12-15/S"},{id:"w8",n:"Banded Face Pulls",r:"12-15"}],
-ex:[
-{id:"e1",n:"\u2764\ufe0f Klimm. Neutral Grip",s:3,rp:"6-8",tp:"1-0-1-0",rs:0,ss:1,m:"Lats, Bizeps, Core",w:"Liebling!",u:0,ast:1},
-{id:"e2",n:"Inverted Row",s:3,rp:"8-10",tp:"2-1-1-0",rs:90,m:"Ob. R\u00fccken, Bizeps",w:"Horiz. Pull",u:0},
-{id:"e3",n:"DB Overhead Press",s:3,rp:"8-10",tp:"2-0-1-0",rs:0,ss:1,m:"Schultern, Trizeps",w:"Compound Push",u:0},
-{id:"e4",n:"\u2764\ufe0f DB Lateral Raise",s:3,rp:"12-15",tp:"3-0-1-0",rs:75,m:"Seitl. Schulter",w:"Liebling!",u:0},
-{id:"e5",n:"\u2764\ufe0f DB Hammer/Zottman",s:3,rp:"10-12",tp:"2-0-1-0",rs:0,ss:1,m:"Bizeps",w:"Liebling!",u:0},
-{id:"e6",n:"DB Lying Tri Ext.",s:3,rp:"10-12",tp:"2-0-1-0",rs:60,m:"Trizeps",w:"Ausgleich Bizeps",u:0},
-{id:"e7",n:"Serratus Front Raise",s:2,rp:"12-15/S",tp:"2-0-1-0",rs:0,ss:1,m:"Serratus Anterior",w:"Schulterblatt",u:0},
-{id:"e8",n:"Bar Hang",s:2,rp:"\u2014",tp:"\u2014",rs:60,m:"Unterarme, Lats",w:"Grip",u:0,iso:1,iS:25}
-]},
-3:{name:"Tag 3",label:"Full Body",icon:"\u{1F3CB}\ufe0f",loc:"Gym (FitInn)",wu:[
-{id:"w1",n:"Hip Hurdles",r:"10"},{id:"w2",n:"90/90 Transitions",r:"10"},{id:"w3",n:"90/90 Hip Extension",r:"10/S"},
-{id:"w4",n:"Seated Straight Leg Raises",r:"10/S"},{id:"w5",n:"Hip Flexor Lunges",r:"10/S"},
-{id:"w6",n:"Deep Lateral Lunges",r:"10/S"},{id:"w7",n:"Deep Squats",r:"10"},
-{id:"w8",n:"Shoulder Dislocates",r:"10",nt:"Flex. Bar"},{id:"w9",n:"Around the Worlds",r:"10/S"},
-{id:"w10",n:"Band Pull Aparts",r:"10"},{id:"w11",n:"Forward Windmills",r:"10"},
-{id:"w12",n:"Backward Windmills",r:"10"},{id:"w13",n:"Arm Swings Crisscross",r:"10"},
-{id:"w14",n:"Cable Ext. Rotations",r:"12/S",nt:"MULTI 1"},{id:"w15",n:"Scapular Pull-Ups",r:"8-10",nt:"MULTI 7"}],
-ex:[
-{id:"e1",n:"\u2764\ufe0f Klimmzug-Progr.",s:4,rp:"6-8",tp:"1-0-1-0",rs:90,m:"Lats, Bizeps, Core",w:"Liebling!",u:0,ast:1,g:"MULTI 7"},
-{id:"e2",n:"Chest Press",s:3,rp:"10-12",tp:"2-0-1-0",rs:75,m:"Brust, Schulter, Tri",w:"Push-Ausgleich",u:0,g:"BRUST 2A"},
-{id:"e3",n:"Cable Row",s:3,rp:"8-10",tp:"3-0-1-2",rs:75,m:"Ob. R\u00fccken, Lats",w:"Horiz. Pull",u:0,g:"R\u00dcCKEN 1D \ud83c\udff7\ufe0f",h:"Grip: Wo1 Pronated\u2192Wo2 Neutral\u2192Wo3 Supinated"},
-{id:"e4",n:"\u2764\ufe0f Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Liebling!",u:0,g:"GES\u00c4SS 3F \ud83c\udff7\ufe0f"},
-{id:"e5",n:"\u2764\ufe0f RDL (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Hamstrings, Glutes",w:"Liebling!",u:0,g:"Half Rack \ud83c\udff7\ufe0f"},
-{id:"e6",n:"\u2764\ufe0f Cable Biceps Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Bizeps",w:"Liebling!",u:0,g:"MULTI 1 \ud83c\udff7\ufe0f"},
-{id:"e7",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"Ausgleich",u:0,g:"MULTI 1 \ud83c\udff7\ufe0f"},
-{id:"e8",n:"SL Leg Extension",s:2,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Knie-Rehab! E3",u:1,g:"BEINE 1A \ud83c\udff7\ufe0f"},
-{id:"e9",n:"Cable Hip Abduction",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",w:"H\u00fcftstabilit\u00e4t",u:1,g:"MULTI 1 \ud83c\udff7\ufe0f"},
-{id:"e10",n:"Cable Hip Adduction",s:2,rp:"12-15",tp:"1-1-1-0",rs:30,m:"Adduktoren",w:"H\u00fcftstabilit\u00e4t",u:1,g:"MULTI 1 \ud83c\udff7\ufe0f"},
-{id:"e11",n:"Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"2. Einheit/Wo",u:0,g:"BEINE 4D"},
-{id:"e12",n:"\u2764\ufe0f Lateral Raise",s:2,rp:"12-15",tp:"2-0-1-0",rs:30,m:"Seitl. Schulter",w:"Liebling!",u:0,g:"SCHULTERN 3"}
-]}};
+{id:"e5",n:"⭐ Tempo Split Squat",s:3,rp:"8-10",tp:"3-1-1-0",rs:75,m:"Quads, Glutes",w:"Wenn Squat 3×15 ok",u:1,opt:1},
+{id:"e6",n:"Standing Hip Flexion",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Hip Flexoren",w:"E3 Hip",u:1},
+{id:"e7",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",u:1},
+{id:"e8",n:"Copenhagen Plank",s:2,rp:"—",tp:"iso",rs:60,m:"Adduktoren, Core",w:"Hüftstab.",u:1,iso:1,iS:30}]},
+2:{nm:"Tag 2",lb:"Upper Body",ic:"💪",lo:"HomeGym",
+wu:[{id:"w1",n:"Shoulder Dislocates",r:"10",nt:"Band"},{id:"w2",n:"Around the Worlds",r:"10/S"},{id:"w3",n:"Band Pull Aparts",r:"10"},{id:"w4",n:"Forward Windmills",r:"10"},{id:"w5",n:"Backward Windmills",r:"10"},{id:"w6",n:"Arm Swings Crisscross",r:"10"},{id:"w7",n:"Banded Ext. Rotations",r:"12-15/S"},{id:"w8",n:"Banded Face Pulls",r:"12-15"}],
+ex:[{id:"e1",n:"❤️ Klimm. Neutral Grip",s:3,rp:"6-8",tp:"1-0-1-0",rs:0,ss:1,m:"Lats, Bizeps, Core",w:"Liebling!",u:0,band:1},
+{id:"e2",n:"Inverted Row",s:3,rp:"8-10",tp:"2-1-1-0",rs:90,m:"Ob. Rücken, Bizeps",w:"Horiz. Pull",u:0,nk:1},
+{id:"e3",n:"DB Overhead Press",s:3,rp:"8-10",tp:"2-0-1-0",rs:0,ss:1,m:"Schultern, Trizeps",u:0},
+{id:"e4",n:"❤️ DB Lateral Raise",s:3,rp:"12-15",tp:"3-0-1-0",rs:75,m:"Seitl. Schulter",w:"Liebling!",u:0},
+{id:"e5",n:"❤️ DB Hammer/Zottman",s:3,rp:"10-12",tp:"2-0-1-0",rs:0,ss:1,m:"Bizeps",w:"Liebling!",u:0},
+{id:"e6",n:"DB Lying Tri Ext.",s:3,rp:"10-12",tp:"2-0-1-0",rs:60,m:"Trizeps",u:0},
+{id:"e7",n:"Serratus Front Raise",s:2,rp:"12-15/S",tp:"2-0-1-0",rs:0,ss:1,m:"Serratus Anterior",u:0},
+{id:"e8",n:"Bar Hang",s:2,rp:"—",tp:"—",rs:60,m:"Unterarme, Lats",w:"Grip",u:0,iso:1,iS:25}]},
+3:{nm:"Tag 3",lb:"Full Body",ic:"🏋️",lo:"Gym (FitInn)",
+wu:[{id:"w1",n:"Hip Hurdles",r:"10"},{id:"w2",n:"90/90 Transitions",r:"10"},{id:"w3",n:"90/90 Hip Extension",r:"10/S"},{id:"w4",n:"Seated Straight Leg Raises",r:"10/S"},{id:"w5",n:"Hip Flexor Lunges",r:"10/S"},{id:"w6",n:"Deep Lateral Lunges",r:"10/S"},{id:"w7",n:"Deep Squats",r:"10"},{id:"w8",n:"Shoulder Dislocates",r:"10",nt:"Flex. Bar"},{id:"w9",n:"Around the Worlds",r:"10/S"},{id:"w10",n:"Band Pull Aparts",r:"10"},{id:"w11",n:"Forward Windmills",r:"10"},{id:"w12",n:"Backward Windmills",r:"10"},{id:"w13",n:"Arm Swings Crisscross",r:"10"},{id:"w14",n:"Cable Ext. Rotations",r:"12/S",nt:"MULTI 1"},{id:"w15",n:"Scapular Pull-Ups",r:"8-10",nt:"MULTI 7"}],
+ex:[{id:"e1",n:"❤️ Klimmzug-Progr.",s:4,rp:"6-8",tp:"1-0-1-0",rs:90,m:"Lats, Bizeps, Core",w:"Liebling!",u:0,ast:1,g:"MULTI 7"},
+{id:"e2",n:"Chest Press",s:3,rp:"10-12",tp:"2-0-1-0",rs:75,m:"Brust, Schulter, Tri",g:"BRUST 2A",u:0},
+{id:"e3",n:"Cable Row",s:3,rp:"8-10",tp:"3-0-1-2",rs:75,m:"Ob. Rücken, Lats",g:"RÜCKEN 1D 🏷️",u:0,h:"Grip: Wo1 Pronated→Wo2 Neutral→Wo3 Supinated"},
+{id:"e4",n:"❤️ Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Liebling!",g:"GESÄSS 3F 🏷️",u:0},
+{id:"e5",n:"❤️ RDL (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Hamstrings, Glutes",w:"Liebling!",g:"Half Rack 🏷️",u:0},
+{id:"e6",n:"❤️ Cable Biceps Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Bizeps",w:"Liebling!",g:"MULTI 1 🏷️",u:0},
+{id:"e7",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",g:"MULTI 1 🏷️",u:0},
+{id:"e8",n:"SL Leg Extension",s:2,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Knie-Rehab!",u:1,g:"BEINE 1A 🏷️"},
+{id:"e9",n:"Cable Hip Abduction",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",u:1,g:"MULTI 1 🏷️"},
+{id:"e10",n:"Cable Hip Adduction",s:2,rp:"12-15",tp:"1-1-1-0",rs:30,m:"Adduktoren",u:1,g:"MULTI 1 🏷️"},
+{id:"e11",n:"Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",g:"BEINE 4D",u:0},
+{id:"e12",n:"❤️ Lateral Raise",s:2,rp:"12-15",tp:"2-0-1-0",rs:30,m:"Seitl. Schulter",w:"Liebling!",g:"SCHULTERN 3",u:0}]}};
 
-const COMPS=[{n:"K\u00fche",e:"\ud83d\udc04",k:700},{n:"Pferde",e:"\ud83d\udc34",k:500},{n:"Katzen",e:"\ud83d\udc31",k:4.5},{n:"Pinguine",e:"\ud83d\udc27",k:30},{n:"H\u00fchner",e:"\ud83d\udc14",k:2.5},{n:"Goldhamster",e:"\ud83d\udc39",k:.03},{n:"VW Golfs",e:"\ud83d\ude97",k:1400},{n:"Fahrr\u00e4der",e:"\ud83d\udeb2",k:12},{n:"E-Scooter",e:"\ud83d\udef4",k:14},{n:"D\u00f6ner",e:"\ud83e\udd59",k:.35},{n:"Pizzen",e:"\ud83c\udf55",k:.8},{n:"Schnitzel",e:"\ud83e\udd69",k:.25},{n:"Ma\u00df Bier",e:"\ud83c\udf7a",k:2.3},{n:"Waschmaschinen",e:"\ud83e\udee7",k:70},{n:"Goldbarren",e:"\ud83e\udd47",k:12.4},{n:"Einh\u00f6rner",e:"\ud83e\udd84",k:450},{n:"Bowlingkugeln",e:"\ud83c\udfb3",k:6.3},{n:"Bernhardiner",e:"\ud83d\udc15",k:80}];
+const COMPS=[{n:"Kühe",e:"🐄",k:700},{n:"Pferde",e:"🐴",k:500},{n:"Katzen",e:"🐱",k:4.5},{n:"Pinguine",e:"🐧",k:30},{n:"Hühner",e:"🐔",k:2.5},{n:"Goldhamster",e:"🐹",k:.03},{n:"VW Golfs",e:"🚗",k:1400},{n:"Fahrräder",e:"🚲",k:12},{n:"Döner",e:"🥙",k:.35},{n:"Pizzen",e:"🍕",k:.8},{n:"Schnitzel",e:"🥩",k:.25},{n:"Maß Bier",e:"🍺",k:2.3},{n:"Waschmaschinen",e:"🫧",k:70},{n:"Goldbarren",e:"🥇",k:12.4},{n:"Einhörner",e:"🦄",k:450},{n:"Bowlingkugeln",e:"🎳",k:6.3},{n:"Bernhardiner",e:"🐕",k:80}];
 const rndC=(kg,n=5)=>[...COMPS].sort(()=>Math.random()-.5).slice(0,n).map(c=>({...c,a:(kg/c.k).toFixed(c.k<1?0:1)}));
 
 const eS=()=>({reps:"",kg:"",secs:"",isW:false});
 const eU=()=>({rR:"",kR:"",rL:"",kL:"",sR:"",sL:"",isW:false});
 const iSets=ex=>Array.from({length:ex.s},()=>ex.u?eU():eS());
-
 function calcVol(d){let t=0;Object.values(d).forEach(sets=>{if(!Array.isArray(sets))return;sets.forEach(s=>{if(s.isW)return;if(s.kg!==undefined)t+=(parseFloat(s.kg)||0)*(parseInt(s.reps)||parseInt(s.secs)||0);else{t+=(parseFloat(s.kR)||0)*(parseInt(s.rR)||parseInt(s.sR)||0);t+=(parseFloat(s.kL)||0)*(parseInt(s.rL)||parseInt(s.sL)||0)}})});return Math.round(t)}
 
-// DB
-async function dbLoad(uid){
-  const{data:ws}=await sb.from('workouts').select('*').eq('user_id',uid).order('date',{ascending:true});
-  const out=[];
-  for(const w of(ws||[])){
-    const{data:els}=await sb.from('exercise_logs').select('*').eq('workout_id',w.id);
-    const exs={},nts={};
-    for(const el of(els||[])){
-      const{data:sl}=await sb.from('set_logs').select('*').eq('exercise_log_id',el.id).order('set_number');
-      exs[el.exercise_id]=(sl||[]).map(s=>s.is_unilateral?
-        {rR:s.reps_r||"",kR:String(s.kg_r||""),rL:s.reps_l||"",kL:String(s.kg_l||""),sR:s.secs_r||"",sL:s.secs_l||"",isW:s.is_warmup}:
-        {reps:s.reps||"",kg:String(s.kg||""),secs:s.secs||"",isW:s.is_warmup,mvKg:s.moved_kg||0});
-      if(el.note)nts[el.exercise_id]=el.note;
-    }
-    out.push({id:w.id,day:w.day,date:w.date,vol:Number(w.volume),dur:w.duration,exs,nts});
-  }
-  return out;
-}
+async function dbLoad(uid){const{data:ws}=await sb.from('workouts').select('*').eq('user_id',uid).order('date',{ascending:true});const out=[];for(const w of(ws||[])){const{data:els}=await sb.from('exercise_logs').select('*').eq('workout_id',w.id);const exs={},nts={};for(const el of(els||[])){const{data:sl}=await sb.from('set_logs').select('*').eq('exercise_log_id',el.id).order('set_number');exs[el.exercise_id]=(sl||[]).map(s=>s.is_unilateral?{rR:s.reps_r||"",kR:String(s.kg_r||""),rL:s.reps_l||"",kL:String(s.kg_l||""),sR:s.secs_r||"",sL:s.secs_l||"",isW:s.is_warmup}:{reps:s.reps||"",kg:String(s.kg||""),secs:s.secs||"",isW:s.is_warmup,mvKg:s.moved_kg||0});if(el.note)nts[el.exercise_id]=el.note;}out.push({id:w.id,day:w.day,date:w.date,vol:Number(w.volume),dur:w.duration,exs,nts});}return out;}
+async function dbSave(uid,day,exD,nts,astD,vol,dur){const{data:w,error}=await sb.from('workouts').insert({user_id:uid,day,volume:vol,duration:dur}).select().single();if(error)return null;for(const[eid,sets]of Object.entries(exD)){if(!Array.isArray(sets)||!sets.length)continue;const{data:el}=await sb.from('exercise_logs').insert({workout_id:w.id,exercise_id:eid,note:nts[eid]||''}).select().single();if(!el)continue;const pl=Object.values(P).flatMap(p=>p.ex).find(e=>e.id===eid);const rows=sets.map((s,i)=>{const ad=pl?.ast&&astD[eid]?astD[eid]:{};const bnd=pl?.band&&astD[eid]?astD[eid]:{};const bw=parseFloat(ad.bw||bnd.bw||0),as=parseFloat(ad.as||0),bk=parseFloat(bnd.bandKg||0);return{exercise_log_id:el.id,set_number:i+1,is_warmup:!!s.isW,is_unilateral:!!pl?.u,reps:parseInt(s.reps)||0,kg:parseFloat(s.kg)||0,secs:parseInt(s.secs)||0,reps_r:parseInt(s.rR)||0,kg_r:parseFloat(s.kR)||0,secs_r:parseInt(s.sR)||0,reps_l:parseInt(s.rL)||0,kg_l:parseFloat(s.kL)||0,secs_l:parseInt(s.sL)||0,bodyweight:bw,assistance:as||bk,moved_kg:pl?.ast?Math.max(0,bw-as):pl?.band?Math.max(0,bw-bk):0};});await sb.from('set_logs').insert(rows);}return w;}
+async function dbSvA(uid,day,d,n,a,o,st){const p={user_id:uid,day,data:{d,n,a,o,st},saved_at:new Date().toISOString()};const{data:ex}=await sb.from('active_workouts').select('id').eq('user_id',uid).maybeSingle();if(ex)await sb.from('active_workouts').update(p).eq('user_id',uid);else await sb.from('active_workouts').insert(p);}
+async function dbLdA(uid){const{data}=await sb.from('active_workouts').select('*').eq('user_id',uid).maybeSingle();return data}
+async function dbDlA(uid){await sb.from('active_workouts').delete().eq('user_id',uid)}
 
-async function dbSave(uid,day,exD,nts,astD,vol,dur){
-  const{data:w,error}=await sb.from('workouts').insert({user_id:uid,day,volume:vol,duration:dur}).select().single();
-  if(error){console.error(error);return null;}
-  for(const[eid,sets]of Object.entries(exD)){
-    if(!Array.isArray(sets)||!sets.length)continue;
-    const{data:el}=await sb.from('exercise_logs').insert({workout_id:w.id,exercise_id:eid,note:nts[eid]||''}).select().single();
-    if(!el)continue;
-    const pl=Object.values(PLANS).flatMap(p=>p.ex).find(e=>e.id===eid);
-    const rows=sets.map((s,i)=>{
-      const ad=pl?.ast&&astD[eid]?astD[eid]:{};
-      const bw=parseFloat(ad.bw)||0,as=parseFloat(ad.as)||0;
-      return{exercise_log_id:el.id,set_number:i+1,is_warmup:!!s.isW,is_unilateral:!!pl?.u,
-        reps:parseInt(s.reps)||0,kg:parseFloat(s.kg)||0,secs:parseInt(s.secs)||0,
-        reps_r:parseInt(s.rR)||0,kg_r:parseFloat(s.kR)||0,secs_r:parseInt(s.sR)||0,
-        reps_l:parseInt(s.rL)||0,kg_l:parseFloat(s.kL)||0,secs_l:parseInt(s.sL)||0,
-        bodyweight:bw,assistance:as,moved_kg:pl?.ast?Math.max(0,bw-as):0};
-    });
-    await sb.from('set_logs').insert(rows);
-  }
-  return w;
-}
-
-async function dbSvAct(uid,day,d,n,a,o,st){
-  const p={user_id:uid,day,data:{d,n,a,o,st},saved_at:new Date().toISOString()};
-  const{data:ex}=await sb.from('active_workouts').select('id').eq('user_id',uid).maybeSingle();
-  if(ex)await sb.from('active_workouts').update(p).eq('user_id',uid);
-  else await sb.from('active_workouts').insert(p);
-}
-async function dbLdAct(uid){const{data}=await sb.from('active_workouts').select('*').eq('user_id',uid).maybeSingle();return data}
-async function dbDlAct(uid){await sb.from('active_workouts').delete().eq('user_id',uid)}
-
-// TIMER
 function Timer({sec:initS,label}){
   const[s,setS]=useState(initS);const[run,setRun]=useState(false);const[adj,setAdj]=useState(initS);const ref=useRef(null);
   useEffect(()=>{if(run&&s>0)ref.current=setInterval(()=>setS(v=>v-1),1000);else if(s<=0&&run)setRun(false);return()=>clearInterval(ref.current)},[run,s]);
   const pct=adj>0?(s/adj)*100:0,done=s<=0&&!run,mn=Math.floor(s/60),sc=s%60;
   const ad=d=>{const v=Math.max(5,adj+d);setAdj(v);if(!run)setS(v)};
   return html`<div style=${{background:'var(--bg3)',borderRadius:10,padding:'10px 14px',margin:'6px 0'}}>
-    <div style=${{fontSize:10,color:'var(--t3)',marginBottom:4}}>${label}</div>
+    <div style=${{fontSize:12,color:'var(--t3)',marginBottom:4}}>${label}</div>
     <div style=${{display:'flex',alignItems:'center',gap:10}}>
-      <div style=${{position:'relative',width:48,height:48}}>
-        <svg width=48 height=48 style="transform:rotate(-90deg)"><circle cx=24 cy=24 r=20 fill="none" stroke="var(--brd)" stroke-width=3.5/>
-        <circle cx=24 cy=24 r=20 fill="none" stroke=${done?'var(--acc)':s<=5&&s>0?'var(--dng)':'var(--acc)'} stroke-width=3.5 stroke-dasharray=125.7 stroke-dashoffset=${125.7*(1-pct/100)} stroke-linecap="round" style="transition:stroke-dashoffset .3s"/></svg>
-        <div style=${{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,fontVariantNumeric:'tabular-nums',color:done?'var(--acc)':'#fff'}}>${done?'\u2713':`${mn}:${String(sc).padStart(2,'0')}`}</div>
+      <div style=${{position:'relative',width:52,height:52}}>
+        <svg width=52 height=52 style="transform:rotate(-90deg)"><circle cx=26 cy=26 r=22 fill="none" stroke="var(--brd)" stroke-width=3.5/><circle cx=26 cy=26 r=22 fill="none" stroke=${done?'var(--acc)':s<=5&&s>0?'var(--dng)':'var(--acc)'} stroke-width=3.5 stroke-dasharray=138.2 stroke-dashoffset=${138.2*(1-pct/100)} stroke-linecap="round" style="transition:stroke-dashoffset .3s"/></svg>
+        <div style=${{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15,fontWeight:700,fontVariantNumeric:'tabular-nums',color:done?'var(--acc)':'#fff'}}>${done?'✓':`${mn}:${String(sc).padStart(2,'0')}`}</div>
       </div>
       <div style=${{display:'flex',gap:4}}>
-        <button onClick=${()=>ad(-5)} style=${{background:'var(--brd)',color:'#aaa',borderRadius:5,padding:'3px 7px',fontSize:10}}>-5</button>
-        <button onClick=${()=>ad(5)} style=${{background:'var(--brd)',color:'#aaa',borderRadius:5,padding:'3px 7px',fontSize:10}}>+5</button>
+        <button onClick=${()=>ad(-5)} style=${{background:'var(--brd)',color:'#aaa',borderRadius:5,padding:'4px 8px',fontSize:12}}>-5</button>
+        <button onClick=${()=>ad(5)} style=${{background:'var(--brd)',color:'#aaa',borderRadius:5,padding:'4px 8px',fontSize:12}}>+5</button>
       </div>
       <div style=${{display:'flex',gap:4,marginLeft:'auto'}}>
-        ${!run?html`<button onClick=${()=>{if(s<=0)setS(adj);setRun(true)}} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:7,width:32,height:32,fontSize:14,fontWeight:700}}>\u25b6</button>`:
-        html`<button onClick=${()=>setRun(false)} style=${{background:'var(--wrn)',color:'var(--bg)',borderRadius:7,width:32,height:32,fontSize:14,fontWeight:700}}>\u23f8</button>`}
-        <button onClick=${()=>{setRun(false);setS(adj)}} style=${{background:'var(--brd2)',color:'#ccc',borderRadius:7,width:32,height:32,fontSize:14,fontWeight:700}}>\u21ba</button>
+        ${!run?html`<button onClick=${()=>{if(s<=0)setS(adj);setRun(true)}} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:7,width:36,height:36,fontSize:16,fontWeight:700}}>▶</button>`:html`<button onClick=${()=>setRun(false)} style=${{background:'var(--wrn)',color:'var(--bg)',borderRadius:7,width:36,height:36,fontSize:16,fontWeight:700}}>⏸</button>`}
+        <button onClick=${()=>{setRun(false);setS(adj)}} style=${{background:'var(--brd2)',color:'#ccc',borderRadius:7,width:36,height:36,fontSize:16,fontWeight:700}}>↺</button>
       </div>
     </div>
-  </div>`;
-}
+  </div>`;}
 
-// BILATERAL SET ROW
-function SR({num,d,onChange,isI,onTW}){
-  return html`<div style=${{display:'flex',gap:6,alignItems:'center',padding:'5px 0',opacity:d.isW?.55:1}}>
-    <button onClick=${onTW} style=${{width:24,height:24,borderRadius:5,fontSize:9,fontWeight:700,background:d.isW?'var(--wrnA)':'var(--bg4)',color:d.isW?'var(--wrn)':'var(--t4)'}}>${d.isW?'W':num}</button>
-    <div style=${{flex:1,display:'flex',gap:6}}>
-      ${isI?html`<input type=number inputMode=numeric placeholder=sek value=${d.secs||""} onInput=${e=>onChange({...d,secs:e.target.value})}/>`:
-      html`<input type=number inputMode=numeric placeholder=reps value=${d.reps||""} onInput=${e=>onChange({...d,reps:e.target.value})}/>`}
-      <input type=number inputMode=decimal placeholder=kg value=${d.kg||""} onInput=${e=>onChange({...d,kg:e.target.value})}/>
-    </div>
-  </div>`;
-}
+function SR({num,d,onChange,isI,onTW,nk}){return html`<div style=${{display:'flex',gap:6,alignItems:'center',padding:'5px 0',opacity:d.isW?.55:1}}>
+  <button onClick=${onTW} style=${{width:26,height:26,borderRadius:5,fontSize:11,fontWeight:700,background:d.isW?'var(--wrnA)':'var(--bg4)',color:d.isW?'var(--wrn)':'var(--t4)'}}>${d.isW?'W':num}</button>
+  <div style=${{flex:1,display:'flex',gap:6}}>
+    ${isI?html`<input type=number inputMode=numeric placeholder=sek value=${d.secs||""} onInput=${e=>onChange({...d,secs:e.target.value})}/>`:html`<input type=number inputMode=numeric placeholder=reps value=${d.reps||""} onInput=${e=>onChange({...d,reps:e.target.value})}/>`}
+    ${!nk?html`<input type=number inputMode=decimal placeholder=kg value=${d.kg||""} onInput=${e=>onChange({...d,kg:e.target.value})}/>`:null}
+  </div></div>`;}
 
-// UNILATERAL SET ROW
-function UR({num,d,onChange,isI,onTW}){
-  return html`<div style=${{padding:'5px 0',opacity:d.isW?.55:1}}>
-    <div style=${{display:'flex',alignItems:'center',gap:6,marginBottom:3}}>
-      <button onClick=${onTW} style=${{width:24,height:24,borderRadius:5,fontSize:9,fontWeight:700,background:d.isW?'var(--wrnA)':'var(--bg4)',color:d.isW?'var(--wrn)':'var(--t4)'}}>${d.isW?'W':num}</button>
-      <span style=${{fontSize:10,fontWeight:600,color:'var(--acc)',width:14}}>R</span>
-      <div style=${{flex:1,display:'flex',gap:6}}>
-        ${isI?html`<input type=number placeholder=sek value=${d.sR||""} onInput=${e=>onChange({...d,sR:e.target.value})}/>`:
-        html`<input type=number placeholder=reps value=${d.rR||""} onInput=${e=>onChange({...d,rR:e.target.value})}/>`}
-        <input type=number placeholder=kg value=${d.kR||""} onInput=${e=>onChange({...d,kR:e.target.value})}/>
-      </div>
-    </div>
-    <div style=${{display:'flex',alignItems:'center',gap:6,marginLeft:30}}>
-      <span style=${{fontSize:10,fontWeight:600,color:'var(--wrn)',width:14}}>L</span>
-      <div style=${{flex:1,display:'flex',gap:6}}>
-        ${isI?html`<input type=number placeholder=sek value=${d.sL||""} onInput=${e=>onChange({...d,sL:e.target.value})}/>`:
-        html`<input type=number placeholder=reps value=${d.rL||""} onInput=${e=>onChange({...d,rL:e.target.value})}/>`}
-        <input type=number placeholder=kg value=${d.kL||""} onInput=${e=>onChange({...d,kL:e.target.value})}/>
-      </div>
-    </div>
-  </div>`;
-}
+function UR({num,d,onChange,isI,onTW}){return html`<div style=${{padding:'5px 0',opacity:d.isW?.55:1}}>
+  <div style=${{display:'flex',alignItems:'center',gap:6,marginBottom:3}}>
+    <button onClick=${onTW} style=${{width:26,height:26,borderRadius:5,fontSize:11,fontWeight:700,background:d.isW?'var(--wrnA)':'var(--bg4)',color:d.isW?'var(--wrn)':'var(--t4)'}}>${d.isW?'W':num}</button>
+    <span style=${{fontSize:12,fontWeight:600,color:'var(--acc)',width:16}}>R</span>
+    <div style=${{flex:1,display:'flex',gap:6}}>${isI?html`<input type=number placeholder=sek value=${d.sR||""} onInput=${e=>onChange({...d,sR:e.target.value})}/>`:html`<input type=number placeholder=reps value=${d.rR||""} onInput=${e=>onChange({...d,rR:e.target.value})}/>`}<input type=number placeholder=kg value=${d.kR||""} onInput=${e=>onChange({...d,kR:e.target.value})}/></div>
+  </div>
+  <div style=${{display:'flex',alignItems:'center',gap:6,marginLeft:32}}>
+    <span style=${{fontSize:12,fontWeight:600,color:'var(--wrn)',width:16}}>L</span>
+    <div style=${{flex:1,display:'flex',gap:6}}>${isI?html`<input type=number placeholder=sek value=${d.sL||""} onInput=${e=>onChange({...d,sL:e.target.value})}/>`:html`<input type=number placeholder=reps value=${d.rL||""} onInput=${e=>onChange({...d,rL:e.target.value})}/>`}<input type=number placeholder=kg value=${d.kL||""} onInput=${e=>onChange({...d,kL:e.target.value})}/></div>
+  </div></div>`;}
 
-// ASSISTED INPUT
-function Ast({d,onChange}){
-  const bw=parseFloat(d.bw)||0,as=parseFloat(d.as)||0,mv=Math.max(0,bw-as);
+function AstM({d,onChange}){const bw=parseFloat(d.bw)||0,as=parseFloat(d.as)||0,mv=Math.max(0,bw-as);
   return html`<div style=${{background:'var(--bg3)',borderRadius:8,padding:'8px 10px',margin:'4px 0'}}>
-    <div style=${{fontSize:10,color:'var(--t3)',marginBottom:4}}>Assisted Pull-Up Rechner</div>
+    <div style=${{fontSize:12,color:'var(--t3)',marginBottom:4}}>Assisted (Maschine)</div>
     <div style=${{display:'flex',gap:6,alignItems:'center'}}>
-      <div style=${{flex:1}}><div style=${{fontSize:9,color:'var(--t4)',marginBottom:2}}>K\u00f6rpergewicht</div><input type=number placeholder=kg value=${d.bw||""} onInput=${e=>onChange({...d,bw:e.target.value})}/></div>
-      <div style=${{color:'var(--t4)'}}>\u2212</div>
-      <div style=${{flex:1}}><div style=${{fontSize:9,color:'var(--t4)',marginBottom:2}}>Unterst\u00fctzung</div><input type=number placeholder=kg value=${d.as||""} onInput=${e=>onChange({...d,as:e.target.value})}/></div>
+      <div style=${{flex:1}}><div style=${{fontSize:11,color:'var(--t4)',marginBottom:2}}>Körpergew.</div><input type=number placeholder=kg value=${d.bw||""} onInput=${e=>onChange({...d,bw:e.target.value})}/></div>
+      <div style=${{color:'var(--t4)'}}>−</div>
+      <div style=${{flex:1}}><div style=${{fontSize:11,color:'var(--t4)',marginBottom:2}}>Unterstütz.</div><input type=number placeholder=kg value=${d.as||""} onInput=${e=>onChange({...d,as:e.target.value})}/></div>
       <div style=${{color:'var(--t4)'}}>=</div>
-      <div style=${{flex:1,textAlign:'center'}}><div style=${{fontSize:9,color:'var(--t4)',marginBottom:2}}>Bewegt</div><div style=${{fontSize:16,fontWeight:800,color:'var(--acc)'}}>${mv.toFixed(1)}</div></div>
-    </div>
-  </div>`;
-}
+      <div style=${{flex:1,textAlign:'center'}}><div style=${{fontSize:11,color:'var(--t4)',marginBottom:2}}>Bewegt</div><div style=${{fontSize:18,fontWeight:800,color:'var(--acc)'}}>${mv.toFixed(1)}</div></div>
+    </div></div>`;}
 
-// EXERCISE CARD
+function AstB({d,onChange}){const band=BANDS.find(b=>b.id===d.bandId)||BANDS[0];const bw=parseFloat(d.bw)||0,mv=Math.max(0,bw-band.kg);
+  return html`<div style=${{background:'var(--bg3)',borderRadius:8,padding:'8px 10px',margin:'4px 0'}}>
+    <div style=${{fontSize:12,color:'var(--t3)',marginBottom:4}}>Assisted (Band)</div>
+    <select value=${d.bandId||"none"} onChange=${e=>{const b=BANDS.find(x=>x.id===e.target.value);onChange({...d,bandId:e.target.value,bandKg:b?.kg||0})}}>
+      ${BANDS.map(b=>html`<option key=${b.id} value=${b.id}>${b.label}</option>`)}</select>
+    <div style=${{display:'flex',gap:6,alignItems:'center',marginTop:6}}>
+      <div style=${{flex:1}}><div style=${{fontSize:11,color:'var(--t4)',marginBottom:2}}>Körpergew.</div><input type=number placeholder=kg value=${d.bw||""} onInput=${e=>onChange({...d,bw:e.target.value})}/></div>
+      <div style=${{color:'var(--t4)'}}>−</div>
+      <div style=${{flex:1,textAlign:'center'}}><div style=${{fontSize:11,color:'var(--t4)',marginBottom:2}}>Band (~)</div><div style=${{fontSize:16,fontWeight:700,color:'var(--wrn)'}}>${band.kg}kg</div></div>
+      <div style=${{color:'var(--t4)'}}>=</div>
+      <div style=${{flex:1,textAlign:'center'}}><div style=${{fontSize:11,color:'var(--t4)',marginBottom:2}}>Bewegt</div><div style=${{fontSize:18,fontWeight:800,color:'var(--acc)'}}>${mv.toFixed(1)}</div></div>
+    </div></div>`;}
+
 function EC({ex,sets,onSet,onAdd,onRm,last,lastN,ast,onAst,note,onNote}){
   const[col,setCol]=useState(false);const[skip,setSkip]=useState(false);const[shN,setShN]=useState(false);
-  const mv=ex.ast&&ast?Math.max(0,(parseFloat(ast.bw)||0)-(parseFloat(ast.as)||0)):null;
-  if(skip)return html`<div class=crd style=${{opacity:.35,padding:'10px 14px'}}>
-    <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-      <span style=${{color:'var(--t3)',fontSize:12,textDecoration:'line-through'}}>${ex.n}</span>
-      <button onClick=${()=>setSkip(false)} style=${{borderRadius:5,padding:'3px 8px',fontSize:10,background:'var(--accA)',color:'var(--acc)'}}>Zur\u00fcck</button>
-    </div></div>`;
+  const mv=ex.ast&&ast?Math.max(0,(parseFloat(ast.bw)||0)-(parseFloat(ast.as)||0)):ex.band&&ast?Math.max(0,(parseFloat(ast.bw)||0)-(parseFloat(ast.bandKg)||0)):null;
+  if(skip)return html`<div class=crd style=${{opacity:.35,padding:'10px 14px'}}><div style=${{display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style=${{color:'var(--t3)',fontSize:14,textDecoration:'line-through'}}>${ex.n}</span><button onClick=${()=>setSkip(false)} style=${{borderRadius:5,padding:'4px 10px',fontSize:12,background:'var(--accA)',color:'var(--acc)'}}>Zurück</button></div></div>`;
   return html`<div class=crd>
     <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:2}}>
       <div style=${{flex:1,cursor:'pointer'}} onClick=${()=>setCol(!col)}>
-        <div style=${{fontSize:13,fontWeight:700,lineHeight:1.3}}>${ex.n} <span style=${{fontSize:10,color:'var(--t4)'}}>${col?'\u25b8':'\u25be'}</span></div>
-        <div style=${{fontSize:10,color:'var(--acc)',marginTop:1}}>${ex.m}</div>
-        <div style=${{fontSize:9,color:'var(--t4)'}}>${ex.s}\u00d7${ex.rp} \u00b7 ${ex.tp}${ex.g?' \u00b7 '+ex.g:''}</div>
-        ${ex.w?html`<div style=${{fontSize:9,color:'var(--wrn)'}}>${ex.w}</div>`:null}
-        ${ex.h?html`<div style=${{fontSize:9,color:'var(--prp)',marginTop:1}}>\u{1f4a1} ${ex.h}</div>`:null}
+        <div style=${{fontSize:15,fontWeight:700,lineHeight:1.3}}>${ex.n} <span style=${{fontSize:12,color:'var(--t4)'}}>${col?'▸':'▾'}</span></div>
+        <div style=${{fontSize:12,color:'var(--acc)',marginTop:1}}>${ex.m}</div>
+        <div style=${{fontSize:11,color:'var(--t4)'}}>${ex.s}×${ex.rp} · ${ex.tp}${ex.g?' · '+ex.g:''}</div>
+        ${ex.w?html`<div style=${{fontSize:11,color:'var(--wrn)'}}>${ex.w}</div>`:null}
+        ${ex.h?html`<div style=${{fontSize:11,color:'var(--prp)',marginTop:1}}>💡 ${ex.h}</div>`:null}
       </div>
       <div style=${{display:'flex',gap:4,flexShrink:0}}>
-        <button onClick=${()=>setShN(!shN)} style=${{background:'none',color:note?'var(--wrn)':'var(--brd2)',fontSize:13}}>\u{1f4dd}</button>
-        <button onClick=${()=>setSkip(true)} style=${{borderRadius:5,padding:'3px 8px',fontSize:10,background:'var(--dngA)',color:'var(--dng)'}}>Skip</button>
-      </div>
-    </div>
+        <button onClick=${()=>setShN(!shN)} style=${{background:'none',color:note?'var(--wrn)':'var(--brd2)',fontSize:15}}>📝</button>
+        <button onClick=${()=>setSkip(true)} style=${{borderRadius:5,padding:'4px 10px',fontSize:12,background:'var(--dngA)',color:'var(--dng)'}}>Skip</button>
+      </div></div>
     ${!col&&html`
-      ${lastN?html`<div style=${{background:'#1a1520',borderRadius:6,padding:'5px 8px',margin:'4px 0',fontSize:10,color:'var(--prp)'}}>\u{1f4dd} ${lastN}</div>`:null}
-      ${shN?html`<input type=text placeholder="Notiz..." value=${note||""} onInput=${e=>onNote(e.target.value)} style=${{fontSize:11,margin:'4px 0'}}/>`:null}
-      ${last&&last.length>0?html`<div style=${{background:'var(--bg3)',borderRadius:6,padding:'5px 8px',margin:'4px 0',fontSize:10,color:'var(--t3)'}}>
-        Letztes Mal: ${last.map(s=>s.rR!==undefined?'R:'+(s.rR||s.sR||0)+'\u00d7'+(s.kR||0)+' L:'+(s.rL||s.sL||0)+'\u00d7'+(s.kL||0):(s.reps||s.secs||0)+'\u00d7'+(s.kg||0)+'kg').join(' | ')}
-      </div>`:null}
-      ${ex.ast?html`<${Ast} d=${ast||{}} onChange=${onAst}/>`:null}
-      ${sets.map((s,i)=>ex.u?
-        html`<${UR} key=${i} num=${i+1} d=${s} onChange=${d=>onSet(i,d)} isI=${ex.iso} onTW=${()=>onSet(i,{...s,isW:!s.isW})}/>`:
-        html`<${SR} key=${i} num=${i+1} d=${s} onChange=${d=>{const nd={...d};if(mv!==null)nd.kg=String(mv.toFixed(1));onSet(i,nd)}} isI=${ex.iso} onTW=${()=>onSet(i,{...s,isW:!s.isW})}/>`)}
+      ${lastN?html`<div style=${{background:'#1a1520',borderRadius:6,padding:'5px 8px',margin:'4px 0',fontSize:12,color:'var(--prp)'}}>📝 ${lastN}</div>`:null}
+      ${shN?html`<input type=text placeholder="Notiz..." value=${note||""} onInput=${e=>onNote(e.target.value)} style=${{fontSize:13,margin:'4px 0'}}/>`:null}
+      ${last&&last.length>0?html`<div style=${{background:'var(--bg3)',borderRadius:6,padding:'5px 8px',margin:'4px 0',fontSize:12,color:'var(--t3)'}}>Letztes Mal: ${last.map(s=>s.rR!==undefined?'R:'+(s.rR||s.sR||0)+'×'+(s.kR||0)+' L:'+(s.rL||s.sL||0)+'×'+(s.kL||0):(s.reps||s.secs||0)+(ex.nk?'':'×'+(s.kg||0)+'kg')).join(' | ')}</div>`:null}
+      ${ex.ast?html`<${AstM} d=${ast||{}} onChange=${onAst}/>`:null}
+      ${ex.band?html`<${AstB} d=${ast||{}} onChange=${onAst}/>`:null}
+      ${sets.map((s,i)=>ex.u?html`<${UR} key=${i} num=${i+1} d=${s} onChange=${d=>onSet(i,d)} isI=${ex.iso} onTW=${()=>onSet(i,{...s,isW:!s.isW})}/>`:html`<${SR} key=${i} num=${i+1} d=${s} onChange=${d=>{const nd={...d};if(mv!==null)nd.kg=String(mv.toFixed(1));onSet(i,nd)}} isI=${ex.iso} nk=${ex.nk} onTW=${()=>onSet(i,{...s,isW:!s.isW})}/>`)}
       <div style=${{display:'flex',gap:6,marginTop:4}}>
-        <button onClick=${onAdd} style=${{borderRadius:5,padding:'3px 10px',fontSize:10,background:'#1a3a2a',color:'var(--acc)'}}>+ Set</button>
-        ${sets.length>1?html`<button onClick=${onRm} style=${{borderRadius:5,padding:'3px 10px',fontSize:10,background:'#3a1a1a',color:'var(--dng)'}}>\u2212 Set</button>`:null}
+        <button onClick=${onAdd} style=${{borderRadius:5,padding:'4px 12px',fontSize:12,background:'#1a3a2a',color:'var(--acc)'}}>+ Set</button>
+        ${sets.length>1?html`<button onClick=${onRm} style=${{borderRadius:5,padding:'4px 12px',fontSize:12,background:'#3a1a1a',color:'var(--dng)'}}>− Set</button>`:null}
       </div>
       ${ex.iso?html`<${Timer} sec=${ex.iS||30} label="Übungstimer"/>`:null}
       ${ex.rs>0?html`<${Timer} sec=${ex.rs} label="Pausentimer"/>`:null}
-    `}
-  </div>`;
-}
+    `}</div>`;}
 
-// WARMUP
-function WU({items}){
-  const[ck,setCk]=useState({});const[nts,setNts]=useState({});const[nf,setNf]=useState(null);
-  return html`<div class=crd style=${{background:'#151520'}}>
-    <div style=${{fontSize:12,fontWeight:700,color:'var(--wrn)',marginBottom:6}}>\u{1f525} Warm-up</div>
-    ${items.map(w=>html`<div key=${w.id} style=${{padding:'4px 0',borderBottom:'1px solid #1a1a30'}}>
-      <div style=${{display:'flex',alignItems:'center',gap:8}}>
-        <div onClick=${()=>setCk(c=>({...c,[w.id]:!c[w.id]}))} style=${{width:20,height:20,borderRadius:5,border:'2px solid '+(ck[w.id]?'var(--acc)':'var(--brd2)'),background:ck[w.id]?'var(--accA)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:11,color:'var(--acc)'}}>${ck[w.id]?'\u2713':''}</div>
-        <div style=${{flex:1}}>
-          <span style=${{fontSize:11,color:ck[w.id]?'var(--t4)':'var(--t2)',textDecoration:ck[w.id]?'line-through':'none'}}>${w.n}</span>
-          <span style=${{fontSize:9,color:'var(--t4)',marginLeft:5}}>${w.r}</span>
-        </div>
-        <button onClick=${()=>setNf(nf===w.id?null:w.id)} style=${{background:'none',color:nts[w.id]?'var(--wrn)':'var(--brd2)',fontSize:12}}>\u{1f4dd}</button>
-      </div>
-      ${w.nt?html`<div style=${{fontSize:9,color:'var(--wrn)',marginLeft:28,marginTop:1}}>${w.nt}</div>`:null}
-      ${nf===w.id?html`<input type=text placeholder="Notiz..." value=${nts[w.id]||""} onInput=${e=>setNts(n=>({...n,[w.id]:e.target.value}))} style=${{fontSize:10,marginLeft:28,marginTop:3,width:'calc(100% - 28px)'}}/>`:null}
-    </div>`)}
-  </div>`;
-}
+function WU({items}){const[ck,setCk]=useState({});return html`<div class=crd style=${{background:'#151520'}}>
+  <div style=${{fontSize:14,fontWeight:700,color:'var(--wrn)',marginBottom:6}}>🔥 Warm-up</div>
+  ${items.map(w=>html`<div key=${w.id} style=${{padding:'4px 0',borderBottom:'1px solid #1a1a30'}}>
+    <div style=${{display:'flex',alignItems:'center',gap:8}}>
+      <div onClick=${()=>setCk(c=>({...c,[w.id]:!c[w.id]}))} style=${{width:22,height:22,borderRadius:5,border:'2px solid '+(ck[w.id]?'var(--acc)':'var(--brd2)'),background:ck[w.id]?'var(--accA)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:13,color:'var(--acc)'}}>${ck[w.id]?'✓':''}</div>
+      <div style=${{flex:1}}><span style=${{fontSize:13,color:ck[w.id]?'var(--t4)':'var(--t2)',textDecoration:ck[w.id]?'line-through':'none'}}>${w.n}</span><span style=${{fontSize:11,color:'var(--t4)',marginLeft:5}}>${w.r}</span></div>
+    </div>
+    ${w.nt?html`<div style=${{fontSize:11,color:'var(--wrn)',marginLeft:30,marginTop:1}}>${w.nt}</div>`:null}
+  </div>`)}</div>`;}
 
-// FUN CARD
-function FC({w,vol,prev,dur}){
-  const ref=useRef(null);const[comps]=useState(()=>rndC(vol));const p=PLANS[w.day];
+function WT({items}){if(!items||!items.length)return null;return html`<div class=crd style=${{background:'#151520'}}>
+  <div style=${{fontSize:14,fontWeight:700,color:'var(--wrn)',marginBottom:6}}>⏱ Aktivierung</div>
+  ${items.map(w=>html`<div key=${w.id} style=${{marginBottom:8}}>
+    <div style=${{fontSize:13,fontWeight:600,color:'var(--t2)'}}>${w.n}</div>
+    ${w.nt?html`<div style=${{fontSize:11,color:'var(--wrn)',marginTop:1}}>${w.nt}</div>`:null}
+    <${Timer} sec=${w.sec} label=${w.n}/>
+  </div>`)}</div>`;}
+
+function FC({w,vol,prev,dur}){const ref=useRef(null);const[comps]=useState(()=>rndC(vol));const p=P[w.day];
   const diff=prev?vol-prev:null,pct=prev?((diff/prev)*100).toFixed(0):null;
-  useEffect(()=>{
-    const c=ref.current;if(!c)return;const ctx=c.getContext('2d');const W=400,H=520;
-    c.width=W*2;c.height=H*2;c.style.width=W+'px';c.style.height=H+'px';ctx.scale(2,2);
-    const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0d0d1a');g.addColorStop(.5,'#1a1030');g.addColorStop(1,'#0d1a1a');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    ctx.globalAlpha=.07;ctx.fillStyle='#00d4aa';ctx.beginPath();ctx.arc(340,70,110,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff9f43';ctx.beginPath();ctx.arc(60,460,70,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-    ctx.fillStyle='#fff';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText(p.icon+' KATJAS WORKOUT',W/2,38);
-    ctx.font='15px system-ui';ctx.fillStyle='#00d4aa';ctx.fillText(p.name+': '+p.label,W/2,60);
-    ctx.strokeStyle='#252545';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(30,75);ctx.lineTo(W-30,75);ctx.stroke();
-    ctx.font='bold 40px system-ui';ctx.fillStyle='#fff';ctx.fillText(vol.toLocaleString('de-DE')+' kg',W/2,120);
-    ctx.font='13px system-ui';ctx.fillStyle='#7a7e95';ctx.fillText('Gesamtvolumen bewegt',W/2,142);
-    ctx.fillStyle='#5a5e75';ctx.fillText('Das entspricht ungef\u00e4hr...',W/2,174);
-    comps.forEach((co,i)=>{const y=200+i*35;ctx.textAlign='left';ctx.font='22px system-ui';ctx.fillText(co.e,55,y+5);ctx.font='bold 15px system-ui';ctx.fillStyle='#fff';ctx.fillText(co.a,95,y+1);ctx.font='13px system-ui';ctx.fillStyle='#7a7e95';ctx.fillText(co.n,148,y+1);ctx.fillStyle='#fff'});
-    if(diff!==null){const y=395;ctx.textAlign='center';ctx.font='bold 15px system-ui';ctx.fillStyle=diff>=0?'#00d4aa':'#ff6b6b';ctx.fillText((diff>=0?'\u2197\ufe0f':'\u2198\ufe0f')+' '+(diff>=0?'+':'')+diff.toLocaleString('de-DE')+' kg ('+(diff>=0?'+':'')+pct+'%)',W/2,y);ctx.font='11px system-ui';ctx.fillStyle='#5a5e75';ctx.fillText('vs. letztes Mal',W/2,y+18)}
-    ctx.textAlign='center';ctx.font='11px system-ui';ctx.fillStyle='#3a3a5c';ctx.fillText(new Date(w.date).toLocaleDateString('de-DE')+(dur?' \u00b7 '+Math.round(dur)+' Min':'')+' \u00b7 #NeverSkipLegDay',W/2,485);
-    ctx.strokeStyle='#252545';ctx.strokeRect(8,8,W-16,H-16);
-  },[vol,comps]);
-  const save=()=>{const c=ref.current;const a=document.createElement('a');a.download='workout-'+new Date().toISOString().slice(0,10)+'.png';a.href=c.toDataURL('image/png');a.click()};
-  return html`<div style=${{textAlign:'center'}}><canvas ref=${ref} style=${{borderRadius:12,maxWidth:'100%'}}/><button onClick=${save} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:12,fontSize:14,fontWeight:700,width:'100%',marginTop:10}}>\u{1f4f8} Bild speichern</button></div>`;
-}
+  useEffect(()=>{const c=ref.current;if(!c)return;const ctx=c.getContext('2d');const W=400,H=520;c.width=W*2;c.height=H*2;c.style.width=W+'px';c.style.height=H+'px';ctx.scale(2,2);const g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0d0d1a');g.addColorStop(.5,'#1a1030');g.addColorStop(1,'#0d1a1a');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);ctx.globalAlpha=.07;ctx.fillStyle='#00d4aa';ctx.beginPath();ctx.arc(340,70,110,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff9f43';ctx.beginPath();ctx.arc(60,460,70,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText(p.ic+' KATJAS WORKOUT',W/2,38);ctx.font='15px system-ui';ctx.fillStyle='#00d4aa';ctx.fillText(p.nm+': '+p.lb,W/2,60);ctx.strokeStyle='#252545';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(30,75);ctx.lineTo(W-30,75);ctx.stroke();ctx.font='bold 40px system-ui';ctx.fillStyle='#fff';ctx.fillText(vol.toLocaleString('de-DE')+' kg',W/2,120);ctx.font='13px system-ui';ctx.fillStyle='#7a7e95';ctx.fillText('Gesamtvolumen bewegt',W/2,142);ctx.fillStyle='#5a5e75';ctx.fillText('Das entspricht ungefähr...',W/2,174);comps.forEach((co,i)=>{const y=200+i*35;ctx.textAlign='left';ctx.font='22px system-ui';ctx.fillText(co.e,55,y+5);ctx.font='bold 15px system-ui';ctx.fillStyle='#fff';ctx.fillText(co.a,95,y+1);ctx.font='13px system-ui';ctx.fillStyle='#7a7e95';ctx.fillText(co.n,148,y+1);ctx.fillStyle='#fff'});if(diff!==null){const y=395;ctx.textAlign='center';ctx.font='bold 15px system-ui';ctx.fillStyle=diff>=0?'#00d4aa':'#ff6b6b';ctx.fillText((diff>=0?'↗️':'↘️')+' '+(diff>=0?'+':'')+diff.toLocaleString('de-DE')+' kg ('+(diff>=0?'+':'')+pct+'%)',W/2,y);ctx.font='11px system-ui';ctx.fillStyle='#5a5e75';ctx.fillText('vs. letztes Mal',W/2,y+18)}ctx.textAlign='center';ctx.font='11px system-ui';ctx.fillStyle='#3a3a5c';ctx.fillText(new Date(w.date).toLocaleDateString('de-DE')+(dur?' · '+Math.round(dur)+' Min':'')+' · #NeverSkipLegDay',W/2,485);ctx.strokeStyle='#252545';ctx.strokeRect(8,8,W-16,H-16);},[vol,comps]);
+  return html`<div style=${{textAlign:'center'}}><canvas ref=${ref} style=${{borderRadius:12,maxWidth:'100%'}}/><button onClick=${()=>{const c=ref.current;const a=document.createElement('a');a.download='workout-'+new Date().toISOString().slice(0,10)+'.png';a.href=c.toDataURL('image/png');a.click()}} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:12,fontSize:16,fontWeight:700,width:'100%',marginTop:10}}>📸 Bild speichern</button></div>`;}
 
-// MAIN APP
 function App(){
-  const[user,setUser]=useState(null);const[aLd,setALd]=useState(true);
-  const[scr,setScr]=useState('home');const[day,setDay]=useState(null);
-  const[wd,setWd]=useState({});const[nts,setNts]=useState({});const[ast,setAst]=useState({});
-  const[optE,setOptE]=useState({});const[stT,setStT]=useState(null);
-  const[all,setAll]=useState([]);const[ld,setLd]=useState(true);
-  const[curW,setCurW]=useState(null);const[hasA,setHasA]=useState(false);const[actR,setActR]=useState(null);
-  const[aErr,setAErr]=useState('');const[em,setEm]=useState('');const[pw,setPw]=useState('');const[isR,setIsR]=useState(false);
-  const svT=useRef(null);const[saving,setSaving]=useState(false);
+  const[user,setUser]=useState(null);const[aLd,setALd]=useState(true);const[scr,setScr]=useState('home');const[day,setDay]=useState(null);
+  const[wd,setWd]=useState({});const[nts,setNts]=useState({});const[ast,setAst]=useState({});const[optE,setOptE]=useState({});const[stT,setStT]=useState(null);
+  const[all,setAll]=useState([]);const[ld,setLd]=useState(true);const[curW,setCurW]=useState(null);const[hasA,setHasA]=useState(false);const[actR,setActR]=useState(null);
+  const[aErr,setAErr]=useState('');const[em,setEm]=useState('');const[pw,setPw]=useState('');const[isR,setIsR]=useState(false);const svT=useRef(null);const[saving,setSaving]=useState(false);
 
-  useEffect(()=>{sb.auth.getSession().then(({data})=>{if(data.session?.user)setUser(data.session.user);setALd(false)});
-    const{data:l}=sb.auth.onAuthStateChange((_,s)=>setUser(s?.user||null));return()=>l.subscription.unsubscribe()},[]);
-
-  useEffect(()=>{if(!user)return;setLd(true);Promise.all([dbLoad(user.id),dbLdAct(user.id)]).then(([w,a])=>{setAll(w||[]);if(a){setHasA(true);setActR(a)}setLd(false)})},[user]);
-
-  useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvAct(user.id,day,wd,nts,ast,optE,stT),2000);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE]);
+  useEffect(()=>{sb.auth.getSession().then(({data})=>{if(data.session?.user)setUser(data.session.user);setALd(false)});const{data:l}=sb.auth.onAuthStateChange((_,s)=>setUser(s?.user||null));return()=>l.subscription.unsubscribe()},[]);
+  useEffect(()=>{if(!user)return;setLd(true);Promise.all([dbLoad(user.id),dbLdA(user.id)]).then(([w,a])=>{setAll(w||[]);if(a){setHasA(true);setActR(a)}setLd(false)})},[user]);
+  useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvA(user.id,day,wd,nts,ast,optE,stT),2000);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE]);
 
   const doAuth=async()=>{setAErr('');const{error}=isR?await sb.auth.signUp({email:em,password:pw}):await sb.auth.signInWithPassword({email:em,password:pw});if(error)setAErr(error.message)};
-  const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
+  const start=d=>{const p=P[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
   const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setStT(d.st||Date.now());setScr('workout');setHasA(false)};
-  const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
-  const gL=d=>[...all].reverse().find(w=>w.day===d);
-  const gLE=(d,id)=>gL(d)?.exs?.[id]||null;
-  const gLN=(d,id)=>gL(d)?.nts?.[id]||null;
-  const finish=async()=>{setSaving(true);const dur=stT?(Date.now()-stT)/60000:0;const vol=calcVol(wd);
-    await dbSave(user.id,day,wd,nts,ast,vol,Math.round(dur));if(user)await dbDlAct(user.id);
-    const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur)};
-    setAll(p=>[...p,w]);setCurW(w);setSaving(false);setScr('summary')};
+  const discard=async()=>{if(user)await dbDlA(user.id);setHasA(false);setActR(null)};
+  const gL=d=>[...all].reverse().find(w=>w.day===d);const gLE=(d,id)=>gL(d)?.exs?.[id]||null;const gLN=(d,id)=>gL(d)?.nts?.[id]||null;
+  const finish=async()=>{setSaving(true);const dur=stT?(Date.now()-stT)/60000:0;const vol=calcVol(wd);await dbSave(user.id,day,wd,nts,ast,vol,Math.round(dur));if(user)await dbDlA(user.id);const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur)};setAll(p=>[...p,w]);setCurW(w);setSaving(false);setScr('summary')};
 
-  // AUTH LOADING
-  if(aLd)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:16}}>\u{1f3cb}\ufe0f Laden...</div>`;
+  if(aLd)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:18}}>Laden...</div>`;
 
-  // LOGIN
   if(!user)return html`<div style=${{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100dvh',padding:20}}>
     <div style=${{background:'var(--bg2)',border:'1px solid var(--brd)',borderRadius:16,padding:24,width:'100%',maxWidth:340}}>
-      <div style=${{textAlign:'center',marginBottom:20}}><div style=${{fontSize:32}}>\u{1f3cb}\ufe0f</div><div style=${{fontSize:20,fontWeight:800,marginTop:8}}>Katjas Tracker</div><div style=${{fontSize:12,color:'var(--t3)',marginTop:4}}>${isR?'Account erstellen':'Einloggen'}</div></div>
-      ${aErr?html`<div style=${{color:'var(--dng)',fontSize:11,marginBottom:8,textAlign:'center'}}>${aErr}</div>`:null}
+      <div style=${{textAlign:'center',marginBottom:20}}><div style=${{fontSize:34}}>🏋️</div><div style=${{fontSize:22,fontWeight:800,marginTop:8}}>Katjas Tracker</div><div style=${{fontSize:14,color:'var(--t3)',marginTop:4}}>${isR?'Account erstellen':'Einloggen'}</div></div>
+      ${aErr?html`<div style=${{color:'var(--dng)',fontSize:13,marginBottom:8,textAlign:'center'}}>${aErr}</div>`:null}
       <div style=${{marginBottom:12}}><input type=email placeholder=Email value=${em} onInput=${e=>setEm(e.target.value)}/></div>
       <div style=${{marginBottom:12}}><input type=password placeholder=Passwort value=${pw} onInput=${e=>setPw(e.target.value)}/></div>
-      <button onClick=${doAuth} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:12,fontSize:14,fontWeight:700,width:'100%'}}>${isR?'Registrieren':'Einloggen'}</button>
-      <button onClick=${()=>{setIsR(!isR);setAErr('')}} style=${{background:'none',color:'var(--acc)',fontSize:12,marginTop:12,width:'100%',textAlign:'center'}}>${isR?'Bereits registriert? Einloggen':'Kein Account? Registrieren'}</button>
+      <button onClick=${doAuth} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:14,fontSize:16,fontWeight:700,width:'100%'}}>${isR?'Registrieren':'Einloggen'}</button>
+      <button onClick=${()=>{setIsR(!isR);setAErr('')}} style=${{background:'none',color:'var(--acc)',fontSize:14,marginTop:12,width:'100%',textAlign:'center'}}>${isR?'Schon registriert? Einloggen':'Kein Account? Registrieren'}</button>
     </div></div>`;
 
-  // LOADING DATA
-  if(ld)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:16}}>Workouts laden...</div>`;
+  if(ld)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:18}}>Workouts laden...</div>`;
 
-  // HOME
   if(scr==='home'){const rec=[...all].reverse().slice(0,5);return html`<div>
-    <div style=${{textAlign:'center',padding:'20px 0 14px'}}><div style=${{fontSize:20,fontWeight:800}}>KATJAS TRACKER</div><div style=${{fontSize:11,color:'var(--t4)',marginTop:3}}>Workout starten</div></div>
+    <div style=${{textAlign:'center',padding:'20px 0 14px'}}><div style=${{fontSize:22,fontWeight:800}}>KATJAS TRACKER</div><div style=${{fontSize:13,color:'var(--t4)',marginTop:3}}>Workout starten</div></div>
     ${hasA&&actR?html`<div style=${{margin:'0 14px 12px',background:'linear-gradient(135deg,#1a2a1a,#0d1a1a)',border:'1px solid #2a4a3a',borderRadius:12,padding:'12px 14px'}}>
-      <div style=${{fontSize:12,fontWeight:700,color:'var(--acc)'}}>\u23f8 Unvollst\u00e4ndiges Workout</div>
-      <div style=${{fontSize:10,color:'var(--t3)',marginTop:2}}>${PLANS[actR.day]?.icon} ${PLANS[actR.day]?.name}</div>
+      <div style=${{fontSize:14,fontWeight:700,color:'var(--acc)'}}>⏸ Unvollständiges Workout</div>
+      <div style=${{fontSize:12,color:'var(--t3)',marginTop:2}}>${P[actR.day]?.ic} ${P[actR.day]?.nm}</div>
       <div style=${{display:'flex',gap:6,marginTop:8}}>
-        <button onClick=${resume} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:8,fontSize:13,fontWeight:700,flex:1}}>Fortsetzen</button>
-        <button onClick=${discard} style=${{background:'var(--bg2)',color:'var(--dng)',border:'1px solid #4a2a2a',borderRadius:10,padding:8,fontSize:13,flex:1}}>Verwerfen</button>
+        <button onClick=${resume} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:10,fontSize:15,fontWeight:700,flex:1}}>Fortsetzen</button>
+        <button onClick=${discard} style=${{background:'var(--bg2)',color:'var(--dng)',border:'1px solid #4a2a2a',borderRadius:10,padding:10,fontSize:15,flex:1}}>Verwerfen</button>
       </div></div>`:null}
     <div style=${{display:'flex',flexDirection:'column',gap:8,padding:'0 14px'}}>
-      ${[1,2,3].map(d=>{const p=PLANS[d],l=gL(d);return html`<button key=${d} onClick=${()=>start(d)} style=${{background:'linear-gradient(135deg,#151530,#12203a)',border:'1px solid var(--brd)',borderRadius:14,padding:'14px 16px',textAlign:'left',position:'relative',overflow:'hidden'}}>
-        <div style=${{fontSize:28,position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',opacity:.12}}>${p.icon}</div>
-        <div style=${{fontSize:15,fontWeight:700}}>${p.icon} ${p.name}</div>
-        <div style=${{fontSize:12,color:'var(--acc)',marginTop:1}}>${p.label} \u00b7 ${p.loc}</div>
-        ${l?html`<div style=${{fontSize:9,color:'var(--t4)',marginTop:3}}>Zuletzt: ${new Date(l.date).toLocaleDateString('de-DE')} \u00b7 ${l.vol?.toLocaleString('de-DE')} kg \u00b7 ${l.dur} Min</div>`:null}
-      </button>`})}
-    </div>
-    ${rec.length>0?html`<div style=${{padding:'16px 14px'}}><div style=${{fontSize:13,fontWeight:700,marginBottom:8}}>Letzte Workouts</div>
-      ${rec.map(w=>{const p=PLANS[w.day];return html`<div key=${w.id} style=${{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #1a1a30',fontSize:11}}>
-        <span style=${{color:'var(--t2)'}}>${p.icon} ${p.label}</span><span style=${{color:'var(--t4)'}}>${new Date(w.date).toLocaleDateString('de-DE')} \u00b7 ${w.vol?.toLocaleString('de-DE')} kg</span></div>`})}</div>`:null}
+      ${[1,2,3].map(d=>{const p=P[d],l=gL(d);return html`<button key=${d} onClick=${()=>start(d)} style=${{background:'linear-gradient(135deg,#151530,#12203a)',border:'1px solid var(--brd)',borderRadius:14,padding:'14px 16px',textAlign:'left',position:'relative',overflow:'hidden'}}>
+        <div style=${{fontSize:30,position:'absolute',right:14,top:'50%',transform:'translateY(-50%)',opacity:.12}}>${p.ic}</div>
+        <div style=${{fontSize:17,fontWeight:700}}>${p.ic} ${p.nm}</div>
+        <div style=${{fontSize:14,color:'var(--acc)',marginTop:1}}>${p.lb} · ${p.lo}</div>
+        ${l?html`<div style=${{fontSize:11,color:'var(--t4)',marginTop:3}}>Zuletzt: ${new Date(l.date).toLocaleDateString('de-DE')} · ${l.vol?.toLocaleString('de-DE')} kg · ${l.dur} Min</div>`:null}
+      </button>`})}</div>
+    ${rec.length>0?html`<div style=${{padding:'16px 14px'}}><div style=${{fontSize:15,fontWeight:700,marginBottom:8}}>Letzte Workouts</div>
+      ${rec.map(w=>{const p=P[w.day];return html`<div key=${w.id} style=${{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #1a1a30',fontSize:13}}><span style=${{color:'var(--t2)'}}>${p.ic} ${p.lb}</span><span style=${{color:'var(--t4)'}}>${new Date(w.date).toLocaleDateString('de-DE')} · ${w.vol?.toLocaleString('de-DE')} kg</span></div>`})}</div>`:null}
     <div style=${{display:'flex',gap:8,padding:'0 14px 20px'}}>
-      <button onClick=${()=>{setDay(1);setScr('history')}} style=${{background:'var(--bg2)',color:'var(--acc)',border:'1px solid var(--brd)',borderRadius:10,padding:10,fontSize:13,fontWeight:600,flex:1}}>\u{1f4ca} Trend</button>
-      <button onClick=${()=>sb.auth.signOut()} style=${{background:'var(--bg2)',color:'var(--t3)',border:'1px solid var(--brd)',borderRadius:10,padding:'10px 16px',fontSize:13}}>Logout</button>
+      <button onClick=${()=>{setDay(1);setScr('history')}} style=${{background:'var(--bg2)',color:'var(--acc)',border:'1px solid var(--brd)',borderRadius:10,padding:12,fontSize:15,fontWeight:600,flex:1}}>📊 Trend</button>
+      <button onClick=${()=>sb.auth.signOut()} style=${{background:'var(--bg2)',color:'var(--t3)',border:'1px solid var(--brd)',borderRadius:10,padding:'12px 16px',fontSize:15}}>Logout</button>
     </div></div>`}
 
-  // WORKOUT
-  if(scr==='workout'&&day){const plan=PLANS[day];return html`<div>
+  if(scr==='workout'&&day){const plan=P[day];return html`<div>
     <div style=${{position:'sticky',top:0,zIndex:20,background:'rgba(13,13,26,.92)',backdropFilter:'blur(12px)',padding:'10px 14px',borderBottom:'1px solid var(--brd)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-      <button onClick=${()=>setScr('home')} style=${{background:'none',color:'var(--dng)',fontSize:12}}>\u2190 Zur\u00fcck</button>
-      <span style=${{fontWeight:700,fontSize:13}}>${plan.icon} ${plan.label}</span>
-      <button onClick=${finish} disabled=${saving} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:7,padding:'6px 14px',fontSize:12,fontWeight:700,opacity:saving?.5:1}}>${saving?'Speichern...':'\u2713 Fertig'}</button>
+      <button onClick=${()=>setScr('home')} style=${{background:'none',color:'var(--dng)',fontSize:14}}>← Zurück</button>
+      <span style=${{fontWeight:700,fontSize:15}}>${plan.ic} ${plan.lb}</span>
+      <button onClick=${finish} disabled=${saving} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:7,padding:'7px 16px',fontSize:14,fontWeight:700,opacity:saving?.5:1}}>${saving?'...':'✓ Fertig'}</button>
     </div>
     <div style=${{padding:'12px 14px'}}>
       <${WU} items=${plan.wu}/>
-      <div style=${{fontSize:13,fontWeight:700,margin:'14px 0 8px'}}>\u{1f4aa} \u00dcbungen</div>
+      ${plan.wt?html`<${WT} items=${plan.wt}/>`:null}
+      <div style=${{fontSize:15,fontWeight:700,margin:'14px 0 8px'}}>💪 Übungen</div>
       ${plan.ex.map(ex=>{
-        if(ex.opt&&!optE[ex.id])return html`<div key=${ex.id} class=crd style=${{background:'var(--bg)',border:'1px dashed var(--brd2)',padding:'12px 14px'}}>
-          <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style=${{color:'var(--t4)',fontSize:12}}>${ex.n}</span>
-            <button onClick=${()=>setOptE(o=>({...o,[ex.id]:true}))} style=${{borderRadius:5,padding:'3px 10px',fontSize:10,background:'#1a3a2a',color:'var(--acc)'}}>Heute machen</button>
-          </div></div>`;
+        if(ex.opt&&!optE[ex.id])return html`<div key=${ex.id} class=crd style=${{background:'var(--bg)',border:'1px dashed var(--brd2)',padding:'12px 14px'}}><div style=${{display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style=${{color:'var(--t4)',fontSize:14}}>${ex.n}</span><button onClick=${()=>setOptE(o=>({...o,[ex.id]:true}))} style=${{borderRadius:5,padding:'4px 12px',fontSize:12,background:'#1a3a2a',color:'var(--acc)'}}>Heute machen</button></div></div>`;
         return html`<${EC} key=${ex.id} ex=${ex} sets=${wd[ex.id]||[]}
           onSet=${(i,d)=>setWd(w=>({...w,[ex.id]:w[ex.id].map((s,j)=>j===i?d:s)}))}
           onAdd=${()=>setWd(w=>({...w,[ex.id]:[...(w[ex.id]||[]),ex.u?eU():eS()]}))}
           onRm=${()=>setWd(w=>({...w,[ex.id]:w[ex.id].slice(0,-1)}))}
-          last=${gLE(day,ex.id)} lastN=${gLN(day,ex.id)}
-          ast=${ast[ex.id]} onAst=${d=>setAst(a=>({...a,[ex.id]:d}))}
-          note=${nts[ex.id]} onNote=${v=>setNts(n=>({...n,[ex.id]:v}))}/>`;
-      })}
-    </div></div>`}
+          last=${gLE(day,ex.id)} lastN=${gLN(day,ex.id)} ast=${ast[ex.id]} onAst=${d=>setAst(a=>({...a,[ex.id]:d}))} note=${nts[ex.id]} onNote=${v=>setNts(n=>({...n,[ex.id]:v}))}/>`;
+      })}</div></div>`}
 
-  // SUMMARY
-  if(scr==='summary'&&curW){const plan=PLANS[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id).slice(-1)[0];const pv=prev?.vol||0;
+  if(scr==='summary'&&curW){const plan=P[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id).slice(-1)[0];const pv=prev?.vol||0;
     return html`<div><div style=${{padding:'12px 14px'}}>
-      <div style=${{textAlign:'center',marginBottom:20,paddingTop:10}}><div style=${{fontSize:40}}>\u{1f389}</div><div style=${{fontSize:20,fontWeight:800}}>Workout fertig!</div><div style=${{fontSize:13,color:'var(--acc)'}}>${plan.icon} ${plan.name} \u00b7 ${curW.dur} Min</div></div>
+      <div style=${{textAlign:'center',marginBottom:20,paddingTop:10}}><div style=${{fontSize:42}}>🎉</div><div style=${{fontSize:22,fontWeight:800}}>Workout fertig!</div><div style=${{fontSize:15,color:'var(--acc)'}}>${plan.ic} ${plan.nm} · ${curW.dur} Min</div></div>
       <div class=crd style=${{background:'linear-gradient(135deg,#1a1030,#0d1a1a)',textAlign:'center'}}>
-        <div style=${{fontSize:36,fontWeight:800}}>${curW.vol.toLocaleString('de-DE')} kg</div><div style=${{fontSize:12,color:'var(--t3)'}}>Gesamtvolumen</div>
-        ${pv>0?html`<div style=${{fontSize:14,fontWeight:700,marginTop:8,color:curW.vol>=pv?'var(--acc)':'var(--dng)'}}>${curW.vol>=pv?'\u2197\ufe0f':'\u2198\ufe0f'} ${curW.vol>=pv?'+':''}${(curW.vol-pv).toLocaleString('de-DE')} kg (${((curW.vol-pv)/pv*100).toFixed(0)}%)</div>`:null}
+        <div style=${{fontSize:38,fontWeight:800}}>${curW.vol.toLocaleString('de-DE')} kg</div><div style=${{fontSize:14,color:'var(--t3)'}}>Gesamtvolumen</div>
+        ${pv>0?html`<div style=${{fontSize:16,fontWeight:700,marginTop:8,color:curW.vol>=pv?'var(--acc)':'var(--dng)'}}>${curW.vol>=pv?'↗️':'↘️'} ${curW.vol>=pv?'+':''}${(curW.vol-pv).toLocaleString('de-DE')} kg (${((curW.vol-pv)/pv*100).toFixed(0)}%)</div>`:null}
       </div>
       <div style=${{marginTop:16}}><${FC} w=${curW} vol=${curW.vol} prev=${pv} dur=${curW.dur}/></div>
-      <button onClick=${()=>{setScr('home');setDay(null)}} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:12,fontSize:14,fontWeight:700,width:'100%',marginTop:16}}>\u2190 Zur\u00fcck</button>
+      <button onClick=${()=>{setScr('home');setDay(null)}} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:14,fontSize:16,fontWeight:700,width:'100%',marginTop:16}}>← Zurück</button>
     </div></div>`}
 
-  // HISTORY
   if(scr==='history'){return html`<div>
     <div style=${{position:'sticky',top:0,zIndex:20,background:'rgba(13,13,26,.92)',backdropFilter:'blur(12px)',padding:'10px 14px',borderBottom:'1px solid var(--brd)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-      <button onClick=${()=>setScr('home')} style=${{background:'none',color:'var(--acc)',fontSize:12}}>\u2190 Zur\u00fcck</button>
-      <span style=${{fontWeight:700,fontSize:13}}>\u{1f4ca} Trend</span><div style=${{width:60}}/>
+      <button onClick=${()=>setScr('home')} style=${{background:'none',color:'var(--acc)',fontSize:14}}>← Zurück</button>
+      <span style=${{fontWeight:700,fontSize:15}}>📊 Trend</span><div style=${{width:60}}/>
     </div>
     <div style=${{padding:'12px 14px'}}>
-      ${[1,2,3].map(d=>{const data=all.filter(w=>w.day===d);const p=PLANS[d];if(!data.length)return null;return html`<div key=${d} class=crd style=${{marginBottom:14}}>
-        <div style=${{fontSize:13,fontWeight:700,marginBottom:8}}>${p.icon} ${p.name}: ${p.label}</div>
-        <div style=${{fontSize:11,color:'var(--t3)'}}>${data.map(w=>new Date(w.date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+': '+w.vol+'kg').join(' \u2192 ')}</div>
+      ${[1,2,3].map(d=>{const data=all.filter(w=>w.day===d);const p=P[d];if(!data.length)return null;return html`<div key=${d} class=crd style=${{marginBottom:14}}>
+        <div style=${{fontSize:15,fontWeight:700,marginBottom:8}}>${p.ic} ${p.nm}: ${p.lb}</div>
+        <div style=${{fontSize:13,color:'var(--t3)'}}>${data.map(w=>new Date(w.date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})+': '+w.vol+'kg').join(' → ')}</div>
       </div>`})}
-      <div style=${{fontSize:13,fontWeight:700,margin:'14px 0 8px'}}>\u00dcbungs-Historie</div>
+      <div style=${{fontSize:15,fontWeight:700,margin:'14px 0 8px'}}>Übungs-Historie</div>
       <div style=${{display:'flex',gap:6,marginBottom:10,flexWrap:'wrap'}}>
-        ${[1,2,3].map(d=>html`<button key=${d} onClick=${()=>setDay(d)} style=${{borderRadius:8,padding:'6px 14px',fontSize:11,background:day===d?'var(--accA)':'var(--bg2)',border:'1px solid '+(day===d?'var(--acc)':'var(--brd)'),color:day===d?'var(--acc)':'var(--t3)'}}>${PLANS[d].icon} ${PLANS[d].name}</button>`)}
+        ${[1,2,3].map(d=>html`<button key=${d} onClick=${()=>setDay(d)} style=${{borderRadius:8,padding:'7px 16px',fontSize:13,background:day===d?'var(--accA)':'var(--bg2)',border:'1px solid '+(day===d?'var(--acc)':'var(--brd)'),color:day===d?'var(--acc)':'var(--t3)'}}>${P[d].ic} ${P[d].nm}</button>`)}
       </div>
-      ${day?PLANS[day].ex.map(ex=>{
+      ${day?P[day].ex.map(ex=>{
         const hist=all.filter(w=>w.day===day&&w.exs[ex.id]).map(w=>({dt:new Date(w.date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),s:w.exs[ex.id],nt:w.nts?.[ex.id]||''}));
         if(!hist.length)return null;
         return html`<div key=${ex.id} class=crd style=${{padding:'10px 14px',marginBottom:6}}>
-          <div style=${{fontSize:12,fontWeight:700}}>${ex.n}</div>
-          <div style=${{fontSize:10,color:'var(--t4)',marginTop:4}}>
+          <div style=${{fontSize:14,fontWeight:700}}>${ex.n}</div>
+          <div style=${{fontSize:12,color:'var(--t4)',marginTop:4}}>
             ${hist.map((h,i)=>html`<div key=${i} style=${{display:'flex',justifyContent:'space-between',padding:'2px 0'}}>
-              <span>${h.dt}${h.nt?' \u{1f4dd} '+h.nt:''}</span>
-              <span>${h.s.map(s=>s.rR!==undefined?'R:'+(s.rR||s.sR||0)+'\u00d7'+(s.kR||0)+' L:'+(s.rL||s.sL||0)+'\u00d7'+(s.kL||0):(s.reps||s.secs||0)+'\u00d7'+(s.kg||0)+'kg').join(' | ')}</span>
-            </div>`)}
-          </div></div>`;
+              <span>${h.dt}${h.nt?' 📝 '+h.nt:''}</span>
+              <span>${h.s.map(s=>s.rR!==undefined?'R:'+(s.rR||s.sR||0)+'×'+(s.kR||0)+' L:'+(s.rL||s.sL||0)+'×'+(s.kL||0):(s.reps||s.secs||0)+(ex.nk?'':'×'+(s.kg||0)+'kg')).join(' | ')}</span>
+            </div>`)}</div></div>`;
       }):null}
     </div></div>`}
-
   return null;
 }
-
 render(html`<${App}/>`,document.getElementById('root'));
-
 </script>
 </body>
 </html>
