@@ -5,10 +5,10 @@ import { BANDS, PLANS, COMPS, rndC } from './plans.js';
 
 export function WorkoutTimer({startTime}){
   const[el,setEl]=useState(0);
-  useEffect(()=>{if(!startTime)return;const iv=setInterval(()=>setEl(Math.floor((Date.now()-startTime)/60000)),10000);setEl(Math.floor((Date.now()-startTime)/60000));return()=>clearInterval(iv)},[startTime]);
-  if(!startTime||el<1)return null;
-  const h=Math.floor(el/60),m=el%60;
-  return html`<div style=${{fontSize:11,color:'var(--t3)',textAlign:'center',padding:'2px 0'}}}>⏱ ${h>0?h+'h ':''}${m} Min</div>`;
+  useEffect(()=>{if(!startTime)return;const up=()=>setEl(Math.floor((Date.now()-startTime)/1000));up();const iv=setInterval(up,1000);return()=>clearInterval(iv)},[startTime]);
+  if(!startTime)return null;
+  const m=Math.floor(el/60),s=el%60;
+  return html`<div style=${{fontSize:11,color:'var(--t3)',textAlign:'center',padding:'2px 0'}}>⏱ ${m}:${String(s).padStart(2,'0')}</div>`;
 }
 
 export function Timer({sec:initS,label}){
