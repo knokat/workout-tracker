@@ -10,7 +10,7 @@ function App(){
   const[user,setUser]=useState(null);const[aLd,setALd]=useState(true);
   const[scr,setScr]=useState('home');const[day,setDay]=useState(null);
   const[wd,setWd]=useState({});const[nts,setNts]=useState({});const[ast,setAst]=useState({});
-  const[optE,setOptE]=useState({});const[stT,setStT]=useState(null);
+  const[optE,setOptE]=useState({});const[stT,setStT]=useState(null);const[wuCk,setWuCk]=useState({});
   const[all,setAll]=useState([]);const[ld,setLd]=useState(true);
   const[curW,setCurW]=useState(null);const[hasA,setHasA]=useState(false);const[actR,setActR]=useState(null);
   const[aErr,setAErr]=useState('');const[em,setEm]=useState('');const[pw,setPw]=useState('');const[isR,setIsR]=useState(false);
@@ -19,11 +19,11 @@ function App(){
   useEffect(()=>{sb.auth.getSession().then(({data})=>{if(data.session?.user)setUser(data.session.user);setALd(false)});
     const{data:l}=sb.auth.onAuthStateChange((_,s)=>setUser(s?.user||null));return()=>l.subscription.unsubscribe()},[]);
   useEffect(()=>{if(!user)return;setLd(true);Promise.all([dbLoad(user.id),dbLdAct(user.id)]).then(([w,a])=>{setAll(w||[]);if(a){setHasA(true);setActR(a)}setLd(false)})},[user]);
-  useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvAct(user.id,day,wd,nts,ast,optE,stT),2000);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE]);
+  useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvAct(user.id,day,wd,nts,ast,optE,stT,wuCk),500);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE,wuCk]);
 
   const doAuth=async()=>{setAErr('');const{error}=isR?await sb.auth.signUp({email:em,password:pw}):await sb.auth.signInWithPassword({email:em,password:pw});if(error)setAErr(error.message)};
-  const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
-  const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setStT(d.st||Date.now());setScr('workout');setHasA(false)};
+  const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setWuCk({});setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
+  const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setStT(d.st||Date.now());setScr('workout');setHasA(false)};
   const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
   const gL=d=>[...all].reverse().find(w=>w.day===d);
   const gLE=(d,id)=>gL(d)?.exs?.[id]||null;
@@ -79,7 +79,7 @@ function App(){
       <button onClick=${finish} disabled=${saving} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:7,padding:'7px 16px',fontSize:14,fontWeight:700,opacity:saving?.5:1}}>${saving?'...':'✓ Fertig'}</button>
     </div>
     <div style=${{padding:'12px 14px'}}>
-      <${WU} items=${plan.wu}/>
+      <${WU} items=${plan.wu} ck=${wuCk} onCk=${setWuCk}/>
       ${plan.wuT?html`<${WUT} items=${plan.wuT}/>`:null}
       <div style=${{fontSize:15,fontWeight:700,margin:'14px 0 8px'}}>💪 Übungen</div>
       ${plan.ex.map(ex=>{

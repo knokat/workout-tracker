@@ -138,13 +138,13 @@ export function EC({ex,sets,onSet,onAdd,onRm,last,lastN,ast,onAst,note,onNote}){
   </div>`;
 }
 
-export function WU({items}){
-  const[ck,setCk]=useState({});const[nts,setNts]=useState({});const[nf,setNf]=useState(null);
+export function WU({items, ck, onCk}){
+  const[nts,setNts]=useState({});const[nf,setNf]=useState(null);
   return html`<div class=crd style=${{background:'#151520'}}>
     <div style=${{fontSize:14,fontWeight:700,color:'var(--wrn)',marginBottom:6}}>🔥 Warm-up</div>
     ${items.map(w=>html`<div key=${w.id} style=${{padding:'4px 0',borderBottom:'1px solid #1a1a30'}}>
       <div style=${{display:'flex',alignItems:'center',gap:8}}>
-        <div onClick=${()=>setCk(c=>({...c,[w.id]:!c[w.id]}))} style=${{width:22,height:22,borderRadius:5,border:'2px solid '+(ck[w.id]?'var(--acc)':'var(--brd2)'),background:ck[w.id]?'var(--accA)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:13,color:'var(--acc)'}}>${ck[w.id]?'✓':''}</div>
+        <div onClick=${()=>onCk(c=>({...c,[w.id]:!c[w.id]}))} style=${{width:22,height:22,borderRadius:5,border:'2px solid '+(ck[w.id]?'var(--acc)':'var(--brd2)'),background:ck[w.id]?'var(--accA)':'transparent',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:13,color:'var(--acc)'}}>${ck[w.id]?'✓':''}</div>
         <div style=${{flex:1}}>
           <span style=${{fontSize:13,color:ck[w.id]?'var(--t4)':'var(--t2)',textDecoration:ck[w.id]?'line-through':'none'}}>${w.n}</span>
           <span style=${{fontSize:11,color:'var(--t4)',marginLeft:5}}>${w.r}</span>
