@@ -18,7 +18,12 @@ function App(){
 
   useEffect(()=>{sb.auth.getSession().then(({data})=>{if(data.session?.user)setUser(data.session.user);setALd(false)});
     const{data:l}=sb.auth.onAuthStateChange((_,s)=>setUser(s?.user||null));return()=>l.subscription.unsubscribe()},[]);
-  useEffect(()=>{if(!user)return;setLd(true);Promise.all([dbLoad(user.id),dbLdAct(user.id)]).then(([w,a])=>{setAll(w||[]);if(a){setHasA(true);setActR(a)}setLd(false)})},[user]);
+  useEffect(()=>{if(!user)return;
+    // Erst aktives Workout laden (schnell, 1 Row) → sofort anzeigen
+    dbLdAct(user.id).then(a=>{if(a){setHasA(true);setActR(a)}});
+    // History im Hintergrund laden
+    dbLoad(user.id).then(w=>{setAll(w||[]);setLd(false)});
+  },[user]);
   useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvAct(user.id,day,wd,nts,ast,optE,stT,wuCk),500);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE,wuCk]);
 
   const doAuth=async()=>{setAErr('');const{error}=isR?await sb.auth.signUp({email:em,password:pw}):await sb.auth.signInWithPassword({email:em,password:pw});if(error)setAErr(error.message)};
@@ -45,7 +50,7 @@ function App(){
       <button onClick=${()=>{setIsR(!isR);setAErr('')}} style=${{background:'none',color:'var(--acc)',fontSize:14,marginTop:12,width:'100%',textAlign:'center'}}>${isR?'Bereits registriert? Einloggen':'Kein Account? Registrieren'}</button>
     </div></div>`;
 
-  if(ld)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:18}}>Workouts laden...</div>`;
+  if(ld&&!hasA)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:18}}>Workouts laden...</div>`;
 
   if(scr==='home'){const rec=[...all].reverse().slice(0,5);return html`<div>
     <div style=${{textAlign:'center',padding:'20px 0 14px'}}><div style=${{fontSize:22,fontWeight:800}}>KATJAS TRACKER</div><div style=${{fontSize:13,color:'var(--t4)',marginTop:3}}>Workout starten</div></div>
