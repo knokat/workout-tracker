@@ -3,6 +3,14 @@
 import { html, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
 import { BANDS, PLANS, COMPS, rndC } from './plans.js';
 
+export function WorkoutTimer({startTime}){
+  const[el,setEl]=useState(0);
+  useEffect(()=>{if(!startTime)return;const iv=setInterval(()=>setEl(Math.floor((Date.now()-startTime)/60000)),10000);setEl(Math.floor((Date.now()-startTime)/60000));return()=>clearInterval(iv)},[startTime]);
+  if(!startTime||el<1)return null;
+  const h=Math.floor(el/60),m=el%60;
+  return html`<div style=${{fontSize:11,color:'var(--t3)',textAlign:'center',padding:'2px 0'}}}>⏱ ${h>0?h+'h ':''}${m} Min</div>`;
+}
+
 export function Timer({sec:initS,label}){
   const[s,setS]=useState(initS);const[run,setRun]=useState(false);const[adj,setAdj]=useState(initS);const ref=useRef(null);
   useEffect(()=>{if(run&&s>0)ref.current=setInterval(()=>setS(v=>v-1),1000);else if(s<=0&&run)setRun(false);return()=>clearInterval(ref.current)},[run,s]);

@@ -4,7 +4,7 @@ import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm
 import { PLANS } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
 import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct } from './db.js';
-import { Timer, EC, WU, WUT, FC } from './components.js';
+import { Timer, EC, WU, WUT, FC, WorkoutTimer } from './components.js';
 
 function App(){
   const[user,setUser]=useState(null);const[aLd,setALd]=useState(true);
@@ -36,7 +36,7 @@ function App(){
   const finish=async()=>{setSaving(true);const dur=stT?(Date.now()-stT)/60000:0;const vol=calcVol(wd);
     await dbSave(user.id,day,wd,nts,ast,vol,Math.round(dur));if(user)await dbDlAct(user.id);
     const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur)};
-    setAll(p=>[...p,w]);setCurW(w);setSaving(false);setScr('summary')};
+    setAll(p=>[...p,w]);setCurW(w);setHasA(false);setActR(null);setSaving(false);setScr('summary')};
 
   if(aLd)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:18}}>Laden...</div>`;
 
@@ -78,10 +78,15 @@ function App(){
     </div></div>`}
 
   if(scr==='workout'&&day){const plan=PLANS[day];return html`<div>
-    <div style=${{position:'sticky',top:0,zIndex:20,background:'rgba(13,13,26,.92)',backdropFilter:'blur(12px)',padding:'10px 14px',borderBottom:'1px solid var(--brd)',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-      <button onClick=${()=>setScr('home')} style=${{background:'none',color:'var(--dng)',fontSize:14}}>← Zurück</button>
-      <span style=${{fontWeight:700,fontSize:15}}>${plan.icon} ${plan.label}</span>
-      <button onClick=${finish} disabled=${saving} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:7,padding:'7px 16px',fontSize:14,fontWeight:700,opacity:saving?.5:1}}>${saving?'...':'✓ Fertig'}</button>
+    <div style=${{position:'sticky',top:0,zIndex:20,background:'rgba(13,13,26,.92)',backdropFilter:'blur(12px)',padding:'10px 14px',borderBottom:'1px solid var(--brd)'}}>
+      <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <button onClick=${()=>setScr('home')} style=${{background:'none',color:'var(--dng)',fontSize:14}}>← Zurück</button>
+        <div style=${{textAlign:'center'}}>
+          <div style=${{fontWeight:700,fontSize:15}}>${plan.icon} ${plan.label}</div>
+          <${WorkoutTimer} startTime=${stT}/>
+        </div>
+        <button onClick=${finish} disabled=${saving} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:7,padding:'7px 16px',fontSize:14,fontWeight:700,opacity:saving?.5:1}}>${saving?'...':'✓ Fertig'}</button>
+      </div>
     </div>
     <div style=${{padding:'12px 14px'}}>
       <${WU} items=${plan.wu} ck=${wuCk} onCk=${setWuCk}/>
@@ -104,14 +109,31 @@ function App(){
     </div></div>`}
 
   if(scr==='summary'&&curW){const plan=PLANS[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id).slice(-1)[0];const pv=prev?.vol||0;
+    const durH=Math.floor(curW.dur/60),durM=curW.dur%60;const durStr=durH>0?durH+'h '+durM+' Min':curW.dur+' Min';
+    // Progressions-Zusammenfassung: Vergleich mit letztem Workout
+    const progs=[];if(prev?.exs){plan.ex.forEach(ex=>{const cur=curW.exs?.[ex.id],old=prev.exs?.[ex.id];if(!cur||!old)return;
+      const cMax=Math.max(...cur.filter(s=>!s.isW).map(s=>parseFloat(s.kg||s.kR||0)||0));
+      const oMax=Math.max(...old.filter(s=>!s.isW).map(s=>parseFloat(s.kg||s.kR||0)||0));
+      const cReps=Math.max(...cur.filter(s=>!s.isW).map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
+      const oReps=Math.max(...old.filter(s=>!s.isW).map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
+      if(cMax>oMax)progs.push({n:ex.n,t:'kg',v:cMax-oMax});
+      else if(cMax===oMax&&cReps>oReps)progs.push({n:ex.n,t:'reps',v:cReps-oReps});
+    })}
     return html`<div><div style=${{padding:'12px 14px'}}>
-      <div style=${{textAlign:'center',marginBottom:20,paddingTop:10}}><div style=${{fontSize:42}}>🎉</div><div style=${{fontSize:22,fontWeight:800}}>Workout fertig!</div><div style=${{fontSize:15,color:'var(--acc)'}}>${plan.icon} ${plan.name} · ${curW.dur} Min</div></div>
+      <div style=${{textAlign:'center',marginBottom:20,paddingTop:10}}><div style=${{fontSize:42}}>🎉</div><div style=${{fontSize:22,fontWeight:800}}>Workout fertig!</div><div style=${{fontSize:15,color:'var(--acc)'}}>${plan.icon} ${plan.name} · ${durStr}</div></div>
       <div class=crd style=${{background:'linear-gradient(135deg,#1a1030,#0d1a1a)',textAlign:'center'}}>
         <div style=${{fontSize:38,fontWeight:800}}>${curW.vol.toLocaleString('de-DE')} kg</div><div style=${{fontSize:14,color:'var(--t3)'}}>Gesamtvolumen</div>
         ${pv>0?html`<div style=${{fontSize:16,fontWeight:700,marginTop:8,color:curW.vol>=pv?'var(--acc)':'var(--dng)'}}>${curW.vol>=pv?'↗️':'↘️'} ${curW.vol>=pv?'+':''}${(curW.vol-pv).toLocaleString('de-DE')} kg (${((curW.vol-pv)/pv*100).toFixed(0)}%)</div>`:null}
       </div>
+      ${progs.length>0?html`<div class=crd style=${{background:'linear-gradient(135deg,#1a2a1a,#0d1a1a)',border:'1px solid #2a4a3a'}}>
+        <div style=${{fontSize:15,fontWeight:700,color:'var(--acc)',marginBottom:6}}>💪 Gesteigert bei ${progs.length} Übung${progs.length>1?'en':''}!</div>
+        ${progs.map(p=>html`<div style=${{fontSize:13,color:'var(--t2)',padding:'2px 0'}}>↗️ ${p.n}: +${p.v} ${p.t}</div>`)}
+      </div>`:null}
       <div style=${{marginTop:16}}><${FC} w=${curW} vol=${curW.vol} prev=${pv} dur=${curW.dur}/></div>
-      <button onClick=${()=>{setScr('home');setDay(null)}} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:14,fontSize:16,fontWeight:700,width:'100%',marginTop:16}}>← Zurück</button>
+      <div style=${{display:'flex',gap:8,marginTop:16}}>
+        <button onClick=${()=>{setScr('workout')}} style=${{background:'var(--bg2)',color:'var(--wrn)',border:'1px solid var(--brd)',borderRadius:10,padding:14,fontSize:16,fontWeight:700,flex:1}}>← Korrigieren</button>
+        <button onClick=${()=>{setScr('home');setDay(null)}} style=${{background:'var(--acc)',color:'var(--bg)',borderRadius:10,padding:14,fontSize:16,fontWeight:700,flex:2}}>✓ Fertig</button>
+      </div>
     </div></div>`}
 
   if(scr==='history'){return html`<div>

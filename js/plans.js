@@ -7,6 +7,7 @@ export const BANDS=[
   {id:"schwarz",label:"⚫ Schwarz (30-60 lbs)",color:"#333",lbs:"30-60",kg:20},
   {id:"lila",label:"🟣 Lila (40-80 lbs)",color:"#8040c0",lbs:"40-80",kg:27},
   {id:"blau",label:"🔵 Blau (80-170 lbs)",color:"#2060c0",lbs:"80-170",kg:57},
+  {id:"gruen",label:"🟢 Grün (50-125 lbs)",color:"#30a030",lbs:"50-125",kg:40},
 ];
 
 export const PLANS={1:{name:"Tag 1",label:"Lower Body",icon:"🦵",loc:"HomeGym",
@@ -63,7 +64,7 @@ ex:[
   {id:"e3",n:"Cable Row",s:3,rp:"8-10",tp:"3-0-1-2",rs:75,m:"Ob. Rücken, Lats",w:"Horiz. Pull",u:0,g:"RÜCKEN 1D 🏷️",h:"Grip: Wo1 Pronated→Wo2 Neutral→Wo3 Supinated"},
   {id:"e4",n:"❤️ Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Liebling!",u:0,g:"GESÄSS 3F 🏷️"},
   {id:"e5",n:"❤️ RDL (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Hamstrings, Glutes",w:"Liebling!",u:0,g:"Half Rack 🏷️"},
-  {id:"e6",n:"❤️ Cable Biceps Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Bizeps",w:"Liebling!",u:0,g:"MULTI 1 🏷️"},
+  {id:"e6",n:"❤️ Cable Biceps Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Bizeps",w:"Liebling!",u:1,g:"MULTI 1 🏷️"},
   {id:"e7",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"Ausgleich",u:0,g:"MULTI 1 🏷️"},
   {id:"e8",n:"SL Leg Extension",s:2,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Knie-Rehab! E3",u:1,g:"BEINE 1A 🏷️"},
   {id:"e9",n:"Cable Hip Abduction",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",w:"Hüftstabilität",u:1,g:"MULTI 1 🏷️"},
