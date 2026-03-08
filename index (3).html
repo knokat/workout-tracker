@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Katjas Tracker">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<title>Katjas Workout Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0A0A0B;--bg2:rgba(255,255,255,0.05);--bg3:rgba(255,255,255,0.03);--bg4:rgba(255,255,255,0.08);
+  --brd:rgba(255,255,255,0.1);--brd2:rgba(255,255,255,0.15);
+  --t1:#E2E8F0;--t2:#CBD5E1;--t3:#94A3B8;--t4:#64748B;--t5:#475569;
+  --acc:#10B981;--accD:#064E3B;--accA:rgba(16,185,129,0.15);--accB:rgba(16,185,129,0.3);
+  --wrn:#F59E0B;--wrnA:rgba(245,158,11,0.15);
+  --dng:#EF4444;--dngA:rgba(239,68,68,0.15);--dngB:rgba(239,68,68,0.2);
+  --blu:#3B82F6;--bluA:rgba(59,130,246,0.15);
+  --prp:#c792ea;
+  --glass:rgba(255,255,255,0.05);--glassBrd:1px solid rgba(255,255,255,0.1);
+  --r:16px;--rs:12px;--rxs:8px;
+  --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--t1);font-family:var(--font);min-height:100dvh;overflow-x:hidden}
+input,select{
+  background:var(--bg2);border:var(--glassBrd);border-radius:var(--rs);color:#fff;
+  padding:10px;font-size:16px;font-weight:600;width:100%;outline:none;
+  font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s;
+  font-family:var(--mono);text-align:center;
+  backdrop-filter:blur(10px);
+}
+input:focus,select:focus{border-color:var(--accB);box-shadow:0 0 0 3px var(--accA)}
+input::placeholder{color:var(--t5);font-weight:400}
+select option{background:#1a1a2e;color:#fff}
+button{cursor:pointer;border:none;font-family:var(--font)}
+button:active{opacity:.8;transform:scale(0.98)}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+#root{max-width:480px;margin:0 auto;position:relative;min-height:100dvh}
+.glass{background:var(--glass);border:var(--glassBrd);border-radius:var(--r);backdrop-filter:blur(10px)}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:11px;color:var(--t4);text-transform:uppercase;letter-spacing:2px}
+.glow-tl{position:fixed;top:-100px;left:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(16,185,129,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
+.glow-br{position:fixed;bottom:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(59,130,246,0.08) 0%,transparent 70%);pointer-events:none;z-index:0}
+.divider{border-bottom:1px solid rgba(255,255,255,0.05)}
+</style>
+</head>
+<body>
+<div class="glow-tl"></div>
+<div class="glow-br"></div>
+<div id="root"><div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:var(--acc);font-size:18px;font-family:var(--mono)">Laden...</div></div>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
