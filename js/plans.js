@@ -69,7 +69,7 @@ ex:[
   {id:"e8",n:"SL Leg Extension",s:2,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Knie-Rehab! E3",u:1,g:"BEINE 1A 🏷️"},
   {id:"e9",n:"Cable Hip Abduction",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",w:"Hüftstabilität",u:1,g:"MULTI 1 🏷️"},
   {id:"e10",n:"Cable Hip Adduction",s:2,rp:"12-15",tp:"1-1-1-0",rs:30,m:"Adduktoren",w:"Hüftstabilität",u:1,g:"MULTI 1 🏷️"},
-  {id:"e11",n:"Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"2. Einheit/Wo",u:0,g:"BEINE 4D"},
+  {id:"e11",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"2. Einheit/Wo",u:1,g:"BEINE 4D"},
   {id:"e12",n:"❤️ Lateral Raise",s:2,rp:"12-15",tp:"2-0-1-0",rs:30,m:"Seitl. Schulter",w:"Liebling!",u:0,g:"SCHULTERN 3"}
 ]}};
 

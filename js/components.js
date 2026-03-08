@@ -9,7 +9,7 @@ export function WorkoutTimer({startTime}){
   useEffect(()=>{if(!startTime)return;const up=()=>setEl(Math.floor((Date.now()-startTime)/1000));up();const iv=setInterval(up,1000);return()=>clearInterval(iv)},[startTime]);
   if(!startTime)return null;
   const m=Math.floor(el/60),s=el%60;
-  return html`<span class=mono style=${{fontSize:11,color:'var(--t4)'}}>${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
+  return html`<span class=mono style=${{fontSize:'inherit',color:'inherit',fontWeight:'inherit',letterSpacing:'inherit'}}>${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>`;
 }
 
 /* ── Timer (Pausen/Übungs/Warmup) ── */
@@ -264,7 +264,7 @@ export function FC({w,vol,prev,dur}){
 /* ── BottomNav ── */
 export function BottomNav({active,onNav}){
   const items=[
-    {id:'home',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><path d="M6 15h12"/><path d="M6 9h12"/><path d="M9 22h6"/><path d="M9 2h6"/></svg>`},
+    {id:'home',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><path d="M6.5 6.5h3v11h-3z"/><path d="M14.5 6.5h3v11h-3z"/><path d="M9.5 11h5"/><path d="M9.5 13h5"/><path d="M4 8.5h2.5v7H4z"/><path d="M17.5 8.5H20v7h-2.5z"/></svg>`},
     {id:'analytics',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`},
     {id:'history',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>`},
     {id:'settings',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`},
@@ -272,9 +272,9 @@ export function BottomNav({active,onNav}){
   return html`<nav style=${{
     position:'fixed',bottom:0,left:'50%',transform:'translateX(-50%)',
     width:'100%',maxWidth:480,
-    background:'rgba(10,10,11,0.85)',borderTop:'1px solid rgba(255,255,255,0.1)',
+    background:'rgba(10,10,11,0.9)',borderTop:'1px solid rgba(255,255,255,0.1)',
     backdropFilter:'blur(20px)',WebkitBackdropFilter:'blur(20px)',
-    padding:'14px 0 env(safe-area-inset-bottom,8px)',
+    padding:'16px 0 max(20px, env(safe-area-inset-bottom, 20px))',
     display:'flex',justifyContent:'space-around',
     borderRadius:'24px 24px 0 0',zIndex:100
   }}>

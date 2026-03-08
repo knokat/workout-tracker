@@ -8,9 +8,9 @@ import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChar
 
 /* ── Day Icons (SVG) ── */
 const DAY_ICONS={
-  1:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><circle cx=12 cy=5 r=2/><path d="M12 7v6"/><path d="M8 21l2-6h4l2 6"/><path d="M6 12h12"/></svg>`,
-  2:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><path d="M7 4v16"/><path d="M17 4v16"/><path d="M3 8h4"/><path d="M3 16h4"/><path d="M17 8h4"/><path d="M17 16h4"/><path d="M7 12h10"/></svg>`,
-  3:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><circle cx=12 cy=5 r=2/><path d="M4 22l4-16"/><path d="M20 22l-4-16"/><path d="M8 14h8"/></svg>`
+  1:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2.5 stroke-linecap="round"><path d="M8 4c0 0 0 4 0 6s2 4 4 4"/><path d="M16 4c0 0 0 4 0 6s-2 4-4 4"/><path d="M8 14v6"/><path d="M16 14v6"/></svg>`,
+  2:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2.5 stroke-linecap="round"><path d="M5 17c0-2 2-4 5-4"/><path d="M10 13V6c0-1.5 1.5-3 3-1.5L16 8"/><path d="M16 8v5c0 2-2 4-4 4"/></svg>`,
+  3:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2.5 stroke-linecap="round"><circle cx=12 cy=5 r=2/><path d="M10 22l-2-8 4-4 4 4-2 8"/><path d="M6 12l4-2"/><path d="M18 12l-4-2"/></svg>`
 };
 const DAY_COLORS={1:'#F59E0B',2:'#3B82F6',3:'#10B981'};
 
@@ -22,7 +22,7 @@ function App(){
   const[all,setAll]=useState([]);const[ld,setLd]=useState(true);
   const[curW,setCurW]=useState(null);const[hasA,setHasA]=useState(false);const[actR,setActR]=useState(null);
   const[aErr,setAErr]=useState('');const[em,setEm]=useState('');const[pw,setPw]=useState('');const[isR,setIsR]=useState(false);
-  const svT=useRef(null);const[saving,setSaving]=useState(false);
+  const svT=useRef(null);const[saving,setSaving]=useState(false);const[aFilter,setAFilter]=useState('all');
 
   useEffect(()=>{sb.auth.getSession().then(({data})=>{if(data.session?.user)setUser(data.session.user);setALd(false)});
     const{data:l}=sb.auth.onAuthStateChange((_,s)=>setUser(s?.user||null));return()=>l.subscription.unsubscribe()},[]);
@@ -246,7 +246,6 @@ function App(){
      ANALYTICS SCREEN
      ══════════════════════════════════════════════ */
   if(scr==='analytics'){
-    const[aFilter,setAFilter]=useState('all');
     // Build exercise list from all plans
     const allExercises=[];Object.values(PLANS).forEach(p=>p.ex.forEach(e=>{if(!allExercises.find(x=>x.id===e.id))allExercises.push({id:e.id,n:e.n,day:p.name})}));
 
@@ -304,7 +303,10 @@ function App(){
           <div class=label style=${{marginBottom:12}}>Per Exercise</div>
           <div class=mono style=${{fontSize:12,color:'var(--t4)',textAlign:'center',padding:10}}>Wähle eine Übung im Dropdown oben</div>
         </div>`:html`<div>
-          <div class=label style=${{marginBottom:12}}>History: ${allExercises.find(e=>e.id===aFilter)?.n||''}</div>
+          <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+            <div class=label>History: ${allExercises.find(e=>e.id===aFilter)?.n||''}</div>
+            <button onClick=${()=>setAFilter('all')} class=mono style=${{fontSize:11,color:'var(--acc)',background:'var(--accA)',border:'none',borderRadius:'var(--rxs)',padding:'5px 12px'}}>← Alle Workouts</button>
+          </div>
           ${(()=>{const hist=all.filter(w=>w.exs?.[aFilter]).map(w=>({dt:new Date(w.date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}),s:w.exs[aFilter],nt:w.nts?.[aFilter]||''}));
             const exDef=Object.values(PLANS).flatMap(p=>p.ex).find(e=>e.id===aFilter);
             if(!hist.length)return html`<div class=glass style=${{padding:16,textAlign:'center'}}><span class=mono style=${{fontSize:12,color:'var(--t4)'}}>Noch keine Daten</span></div>`;
