@@ -29,7 +29,7 @@ ex:[
   {id:"hip-thrust",n:"⭐ ❤️ Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Optional – Tag 3 hat 4 Sets",u:0,opt:1},
   {id:"sb-leg-curl",n:"Swiss Ball Leg Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Hamstrings",w:"Anderer Winkel",u:0},
   {id:"deep-box-split-squat",n:"Deep Box Split Squat",s:5,rp:"8-10",tp:"3-1-1-0",rs:75,m:"Quads (Vastus Medialis), Glutes",w:"Physio: 4-6 Sets, innere Oberschenkel",u:1},
-  {id:"standing-hip-flex",n:"Standing Hip Flexion",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Hip Flexoren",w:"E3 Hip Resilience",u:1},
+  {id:"banded-hip-flex",n:"Banded Standing Hip Flexion",s:2,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Hip Flexoren",w:"E3 Hip Resilience – Progression",u:1,demo:"vimeo:647978267"},
   {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Fußsohlen",u:1},
   {id:"copenhagen-plank",n:"Copenhagen Plank",s:2,rp:"—",tp:"iso",rs:60,m:"Adduktoren, Core",w:"Hüftstabilität",u:1,iso:1,iS:30}
 ]},
