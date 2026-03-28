@@ -1,7 +1,7 @@
 // app.js – Hauptkomponente, Auth, Screens, State (Redesign v2)
 
 import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
-import { PLANS } from './plans.js';
+import { PLANS, LEGACY_ID_MAP } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
 import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct } from './db.js';
 import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart } from './components.js';
@@ -38,8 +38,31 @@ function App(){
   const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setWCmt(d.wCmt||'');setStT(d.st||Date.now());setScr('workout');setHasA(false)};
   const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
   const gL=d=>[...all].reverse().find(w=>w.day===d);
-  const gLE=(d,id)=>gL(d)?.exs?.[id]||null;
-  const gLN=(d,id)=>gL(d)?.nts?.[id]||null;
+  // Find last exercise data across ALL workouts (cross-day), with legacy ID support
+  const gLE=(day,id)=>{
+    // Build list of IDs to search for: current stable ID + any legacy IDs that map to it
+    const searchIds=[id];
+    Object.entries(LEGACY_ID_MAP).forEach(([k,v])=>{if(v===id)searchIds.push(k.split(':')[1])});
+    // Search all workouts reverse (newest first), across all days
+    for(let i=all.length-1;i>=0;i--){
+      const w=all[i];
+      for(const sid of searchIds){
+        const sets=w.exs?.[sid];
+        // Only return if there's actual data (not skipped/empty)
+        if(sets&&sets.length>0&&sets.some(s=>s.reps||s.rR||s.secs||s.sR||s.kg||s.kR))return sets;
+      }
+    }
+    return null;
+  };
+  const gLN=(day,id)=>{
+    const searchIds=[id];
+    Object.entries(LEGACY_ID_MAP).forEach(([k,v])=>{if(v===id)searchIds.push(k.split(':')[1])});
+    for(let i=all.length-1;i>=0;i--){
+      const w=all[i];
+      for(const sid of searchIds){if(w.nts?.[sid])return w.nts[sid]}
+    }
+    return null;
+  };
   const finish=async()=>{setSaving(true);const dur=stT?(Date.now()-stT)/60000:0;const vol=calcVol(wd);
     await dbSave(user.id,day,wd,nts,ast,vol,Math.round(dur));if(user)await dbDlAct(user.id);
     const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur),cmt:wCmt};
