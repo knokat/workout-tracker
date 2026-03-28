@@ -112,23 +112,9 @@ export function AstBand({d,onChange}){
   </div>`;
 }
 
-/* ── DemoOverlay: Vimeo Video Player ── */
-export function DemoOverlay({videoId,onClose}){
-  if(!videoId)return null;
-  return html`<div onClick=${onClose} style=${{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
-    <div onClick=${e=>e.stopPropagation()} style=${{width:'100%',maxWidth:460,position:'relative'}}>
-      <button onClick=${onClose} style=${{position:'absolute',top:-40,right:0,background:'none',color:'#fff',fontSize:28,padding:4,zIndex:201}}>✕</button>
-      <div style=${{position:'relative',paddingBottom:'56.25%',height:0,borderRadius:'var(--r)',overflow:'hidden'}}>
-        <iframe src=${'https://player.vimeo.com/video/'+videoId+'?autoplay=1'} style=${{position:'absolute',top:0,left:0,width:'100%',height:'100%',border:'none'}} allow="autoplay; fullscreen" allowfullscreen></iframe>
-      </div>
-    </div>
-  </div>`;
-}
-
 /* ── EC: Exercise Card ── */
 export function EC({ex,sets,onSet,onAdd,onRm,last,lastN,ast,onAst,note,onNote}){
   const[col,setCol]=useState(false);const[skip,setSkip]=useState(false);const[shN,setShN]=useState(false);
-  const[demoVid,setDemoVid]=useState(null);
   const mv=ex.ast&&ast?Math.max(0,(parseFloat(ast.bw)||0)-(parseFloat(ast.as)||0)):
     ex.band&&ast?Math.max(0,(parseFloat(ast.bw)||0)-(parseFloat(ast.bandKg)||0)):null;
 
@@ -149,13 +135,11 @@ export function EC({ex,sets,onSet,onAdd,onRm,last,lastN,ast,onAst,note,onNote}){
         <div class=mono style=${{fontSize:11,color:'var(--t3)',marginTop:2}}>${ex.s}×${ex.rp}${ex.tp&&ex.tp!=='—'&&ex.tp!=='iso'?' · '+ex.tp:''}${ex.g?' · '+ex.g:''}</div>
       </div>
       <div style=${{display:'flex',gap:6,flexShrink:0,alignItems:'center'}}>
-        ${ex.demo?html`<button onClick=${()=>{const vid=ex.demo.replace('vimeo:','');setDemoVid(vid)}} class=mono style=${{padding:'4px 10px',fontSize:10,fontWeight:700,letterSpacing:1,color:'var(--blu)',background:'var(--bluA)',borderRadius:'var(--rxs)',textTransform:'uppercase'}}>Demo</button>`:null}
+        ${ex.demo?html`<a href=${'https://vimeo.com/'+ex.demo.replace('vimeo:','')} target="_blank" rel="noopener" class=mono style=${{padding:'4px 10px',fontSize:10,fontWeight:700,letterSpacing:1,color:'var(--blu)',background:'var(--bluA)',borderRadius:'var(--rxs)',textTransform:'uppercase',textDecoration:'none'}}>Demo</a>`:null}
         <button onClick=${()=>setShN(!shN)} style=${{background:'none',color:note?'var(--wrn)':'var(--t5)',fontSize:15,padding:4}}>📝</button>
         <button onClick=${()=>setSkip(true)} class=mono style=${{padding:'4px 10px',fontSize:10,fontWeight:700,letterSpacing:1,color:'var(--t5)',background:'none',textTransform:'uppercase'}}>Skip</button>
       </div>
     </div>
-
-    ${demoVid?html`<${DemoOverlay} videoId=${demoVid} onClose=${()=>setDemoVid(null)}/>`:null}
 
     ${!col&&html`
       ${ex.w?html`<div style=${{fontSize:11,color:'var(--wrn)',marginBottom:4}}>${ex.w}</div>`:null}
@@ -216,10 +200,13 @@ export function WU({items, ck, onCk}){
         }}>${ck[w.id]?'✓':''}</div>
         <div style=${{flex:1}}>
           <span style=${{fontSize:14,color:ck[w.id]?'var(--t5)':'var(--t2)',textDecoration:ck[w.id]?'line-through':'none',transition:'all .2s'}}>${w.n}</span>
+          ${w.sets?html`<div class=mono style=${{fontSize:11,color:'var(--acc)',marginTop:2}}>${w.sets}</div>`:
+          html`<span class=mono style=${{fontSize:11,color:'var(--t4)',marginLeft:6}}>${w.r}</span>`}
         </div>
         <button onClick=${()=>setNf(nf===w.id?null:w.id)} style=${{background:'none',color:nts[w.id]?'var(--wrn)':'var(--t5)',fontSize:14,padding:4}}>📝</button>
       </div>
       ${w.nt?html`<div style=${{fontSize:11,color:'var(--wrn)',marginLeft:32,marginTop:2}}>${w.nt}</div>`:null}
+      ${w.timer?html`<div style=${{marginLeft:32}}><${Timer} sec=${w.timer} label=${w.n}/></div>`:null}
       ${nf===w.id?html`<input type=text placeholder="Notiz..." value=${nts[w.id]||""} onInput=${e=>setNts(n=>({...n,[w.id]:e.target.value}))} style=${{fontSize:12,marginLeft:32,marginTop:4,width:'calc(100% - 32px)',textAlign:'left',padding:'8px 12px'}}/>`:null}
     </div>`)}
   </div>`;

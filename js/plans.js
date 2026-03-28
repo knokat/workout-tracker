@@ -49,9 +49,9 @@ ex:[
   {id:"e8",n:"Bar Hang",s:2,rp:"—",tp:"—",rs:60,m:"Unterarme, Lats",w:"Grip",u:0,iso:1,iS:25}
 ]},
 3:{name:"Tag 3",label:"Full Body",icon:"🏋️",loc:"Gym (FitInn)",wu:[
-  {id:"w1",n:"Cook Glute Bridge",r:"3×10",nt:"Physio – Glute-Aktivierung"},
-  {id:"w2",n:"Banded Clamshells",r:"3×12-15",nt:"Physio – schweres Band!"},
-  {id:"w3",n:"Patella-Dehnung links",r:"1-2×60-120s",nt:"Physio – Kniescheibe nach unten"},
+  {id:"w1",n:"Cook Glute Bridge",r:"3×10",nt:"Physio – Glute-Aktivierung",sets:"3 Sets × 10 Reps"},
+  {id:"w2",n:"Banded Clamshells",r:"3×12-15",nt:"Physio – schweres Band!",sets:"3 Sets × 12-15 Reps"},
+  {id:"w3",n:"Patella-Dehnung links",r:"1-2×60-120s",nt:"Physio – Kniescheibe nach unten",sets:"1-2 Sets × 60-120 Sek",timer:90},
   {id:"w4",n:"90/90 Transitions",r:"10",nt:"HG IR/AR"},
   {id:"w5",n:"Hip Flexor Lunges",r:"10/S"},
   {id:"w6",n:"Shoulder Dislocates",r:"10",nt:"Flex. Bar"},
@@ -66,7 +66,7 @@ ex:[
   {id:"e5",n:"Cable Row",s:3,rp:"8-10",tp:"3-0-1-2",rs:75,m:"Ob. Rücken, Lats",w:"Horiz. Pull",u:0,g:"RÜCKEN 1D 🏷️",h:"Grip: Wo1 Pronated→Wo2 Neutral→Wo3 Supinated"},
   {id:"e6",n:"Cable Hip Abduction",s:5,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",w:"Physio: 4-6 Sets!",u:1,g:"MULTI 1 🏷️"},
   {id:"e7",n:"Cable Hip Adduction",s:5,rp:"12-15",tp:"1-1-1-0",rs:30,m:"Adduktoren",w:"Physio: 4-6 Sets!",u:1,g:"MULTI 1 🏷️",demo:"vimeo:832809720"},
-  {id:"e8",n:"Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"2. Einheit/Wo",u:0,g:"BEINE 4D"},
+  {id:"e8",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"2. Einheit/Wo",u:1,g:"BEINE 4D"},
   {id:"e9",n:"❤️ Cable Biceps Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Bizeps",w:"Liebling!",u:1,g:"MULTI 1 🏷️"},
   {id:"e10",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"Ausgleich",u:0,g:"MULTI 1 🏷️"},
   {id:"e11",n:"❤️ Lateral Raise",s:2,rp:"12-15",tp:"2-0-1-0",rs:30,m:"Seitl. Schulter",w:"Liebling!",u:0,g:"SCHULTERN 3"},
