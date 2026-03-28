@@ -33,8 +33,8 @@ export async function dbSave(uid,day,exD,nts,astD,vol,dur){
         bodyweight:bw,assistance:as||bk,moved_kg:moved};});
     await sb.from('set_logs').insert(rows);}return w;}
 
-export async function dbSvAct(uid,day,d,n,a,o,st,wuCk){
-  const p={user_id:uid,day,data:{d,n,a,o,st,wuCk},saved_at:new Date().toISOString()};
+export async function dbSvAct(uid,day,d,n,a,o,st,wuCk,wCmt){
+  const p={user_id:uid,day,data:{d,n,a,o,st,wuCk,wCmt},saved_at:new Date().toISOString()};
   const{data:ex}=await sb.from('active_workouts').select('id').eq('user_id',uid).maybeSingle();
   if(ex)await sb.from('active_workouts').update(p).eq('user_id',uid);else await sb.from('active_workouts').insert(p);}
 

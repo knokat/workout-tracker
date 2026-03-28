@@ -19,6 +19,7 @@ function App(){
   const[scr,setScr]=useState('home');const[day,setDay]=useState(null);
   const[wd,setWd]=useState({});const[nts,setNts]=useState({});const[ast,setAst]=useState({});
   const[optE,setOptE]=useState({});const[stT,setStT]=useState(null);const[wuCk,setWuCk]=useState({});
+  const[wCmt,setWCmt]=useState('');
   const[all,setAll]=useState([]);const[ld,setLd]=useState(true);
   const[curW,setCurW]=useState(null);const[hasA,setHasA]=useState(false);const[actR,setActR]=useState(null);
   const[aErr,setAErr]=useState('');const[em,setEm]=useState('');const[pw,setPw]=useState('');const[isR,setIsR]=useState(false);
@@ -30,18 +31,18 @@ function App(){
     dbLdAct(user.id).then(a=>{if(a){setHasA(true);setActR(a)}});
     dbLoad(user.id).then(w=>{setAll(w||[]);setLd(false)});
   },[user]);
-  useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvAct(user.id,day,wd,nts,ast,optE,stT,wuCk),500);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE,wuCk]);
+  useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvAct(user.id,day,wd,nts,ast,optE,stT,wuCk,wCmt),500);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE,wuCk,wCmt]);
 
   const doAuth=async()=>{setAErr('');const{error}=isR?await sb.auth.signUp({email:em,password:pw}):await sb.auth.signInWithPassword({email:em,password:pw});if(error)setAErr(error.message)};
-  const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setWuCk({});setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
-  const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setStT(d.st||Date.now());setScr('workout');setHasA(false)};
+  const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setWuCk({});setWCmt('');setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
+  const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setWCmt(d.wCmt||'');setStT(d.st||Date.now());setScr('workout');setHasA(false)};
   const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
   const gL=d=>[...all].reverse().find(w=>w.day===d);
   const gLE=(d,id)=>gL(d)?.exs?.[id]||null;
   const gLN=(d,id)=>gL(d)?.nts?.[id]||null;
   const finish=async()=>{setSaving(true);const dur=stT?(Date.now()-stT)/60000:0;const vol=calcVol(wd);
     await dbSave(user.id,day,wd,nts,ast,vol,Math.round(dur));if(user)await dbDlAct(user.id);
-    const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur)};
+    const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur),cmt:wCmt};
     setAll(p=>[...p,w]);setCurW(w);setHasA(false);setActR(null);setSaving(false);setScr('summary')};
   const navTo=s=>{setScr(s);if(s==='history')setDay(null)};
 
@@ -191,6 +192,13 @@ function App(){
           ast=${ast[ex.id]} onAst=${d=>setAst(a=>({...a,[ex.id]:d}))}
           note=${nts[ex.id]} onNote=${v=>setNts(n=>({...n,[ex.id]:v}))}/>`;
       })}
+
+      <div class=glass style=${{padding:'16px 18px',margin:'20px 0 8px'}}>
+        <div class=label style=${{marginBottom:8,display:'flex',alignItems:'center',gap:8}}>
+          <span>💬</span> Workout-Kommentar
+        </div>
+        <input type=text placeholder="z.B. Nur Lower Body weil wenig Zeit..." value=${wCmt} onInput=${e=>setWCmt(e.target.value)} style=${{fontSize:13,textAlign:'left',padding:'10px 14px'}}/>
+      </div>
     </div>
   </div>`}
 
@@ -227,7 +235,11 @@ function App(){
         ${progs.map(p=>html`<div style=${{fontSize:13,color:'var(--t2)',padding:'3px 0'}}>↗️ ${p.n}: +${p.v} ${p.t}</div>`)}
       </div>`:null}
 
-      <div style=${{width:'100%',marginBottom:28}}><${FC} w=${curW} vol=${curW.vol} prev=${pv} dur=${curW.dur}/></div>
+      ${curW.cmt?html`<div class=glass style=${{width:'100%',padding:'14px 18px',marginBottom:20,textAlign:'left'}}>
+        <div style=${{fontSize:13,color:'var(--t3)',fontStyle:'italic'}}>💬 ${curW.cmt}</div>
+      </div>`:null}
+
+      <div style=${{width:'100%',marginBottom:28}}><${FC} w=${curW} vol=${curW.vol} prev=${pv} dur=${curW.dur} cmt=${curW.cmt}/></div>
 
       <div style=${{width:'100%',display:'flex',gap:10}}>
         <button onClick=${()=>{setScr('workout')}} class=glass style=${{color:'var(--wrn)',padding:'16px',fontSize:16,fontWeight:700,flex:1}}>← Korrigieren</button>

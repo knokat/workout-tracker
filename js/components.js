@@ -228,17 +228,18 @@ export function WUT({items}){
 }
 
 /* ── FC: Fun Card (Canvas) ── */
-export function FC({w,vol,prev,dur}){
+export function FC({w,vol,prev,dur,cmt}){
   const ref=useRef(null);const[comps]=useState(()=>rndC(vol));const p=PLANS[w.day];
   const diff=prev?vol-prev:null,pct=prev?((diff/prev)*100).toFixed(0):null;
+  const hasCmt=cmt&&cmt.trim().length>0;
   useEffect(()=>{
-    const c=ref.current;if(!c)return;const ctx=c.getContext('2d');const W=400,H=520;
+    const c=ref.current;if(!c)return;const ctx=c.getContext('2d');const W=400,H=hasCmt?560:520;
     c.width=W*2;c.height=H*2;c.style.width=W+'px';c.style.height=H+'px';ctx.scale(2,2);
     // Background
     ctx.fillStyle='#0A0A0B';ctx.fillRect(0,0,W,H);
     // Subtle glows
     ctx.globalAlpha=.06;ctx.fillStyle='#10B981';ctx.beginPath();ctx.arc(340,70,110,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#3B82F6';ctx.beginPath();ctx.arc(60,460,70,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+    ctx.fillStyle='#3B82F6';ctx.beginPath();ctx.arc(60,H-60,70,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
     // Title
     ctx.fillStyle='#fff';ctx.font='bold 20px Inter,system-ui';ctx.textAlign='center';ctx.fillText(p.icon+' KATJAS WORKOUT',W/2,38);
     ctx.font='15px Inter,system-ui';ctx.fillStyle='#10B981';ctx.fillText(p.name+': '+p.label,W/2,60);
@@ -253,11 +254,20 @@ export function FC({w,vol,prev,dur}){
     comps.forEach((co,i)=>{const y=200+i*35;ctx.textAlign='left';ctx.font='22px system-ui';ctx.fillText(co.e,55,y+5);ctx.font='bold 15px Inter,system-ui';ctx.fillStyle='#fff';ctx.fillText(co.a,95,y+1);ctx.font='13px Inter,system-ui';ctx.fillStyle='#94A3B8';ctx.fillText(co.n,148,y+1);ctx.fillStyle='#fff'});
     // Progression
     if(diff!==null){const y=395;ctx.textAlign='center';ctx.font='bold 15px Inter,system-ui';ctx.fillStyle=diff>=0?'#10B981':'#EF4444';ctx.fillText((diff>=0?'↗️':'↘️')+' '+(diff>=0?'+':'')+diff.toLocaleString('de-DE')+' kg ('+(diff>=0?'+':'')+pct+'%)',W/2,y);ctx.font='11px Inter,system-ui';ctx.fillStyle='#64748B';ctx.fillText('vs. letztes Mal',W/2,y+18)}
+    // Comment
+    if(hasCmt){const cy=hasCmt?435:0;ctx.textAlign='center';ctx.font='italic 13px Inter,system-ui';ctx.fillStyle='#94A3B8';
+      // Word-wrap comment to max ~340px width
+      const words=cmt.trim().split(' ');let line='';let lines=[];
+      for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>340&&line){lines.push(line);line=word}else line=test}
+      if(line)lines.push(line);
+      lines.slice(0,2).forEach((l,i)=>ctx.fillText(l,W/2,cy+i*18));
+    }
     // Footer
-    ctx.textAlign='center';ctx.font='11px Inter,system-ui';ctx.fillStyle='#475569';ctx.fillText(new Date(w.date).toLocaleDateString('de-DE')+(dur?' · '+Math.round(dur)+' Min':'')+' · #NeverSkipLegDay',W/2,485);
+    const fy=hasCmt?H-25:485;
+    ctx.textAlign='center';ctx.font='11px Inter,system-ui';ctx.fillStyle='#475569';ctx.fillText(new Date(w.date).toLocaleDateString('de-DE')+(dur?' · '+Math.round(dur)+' Min':'')+' · #NeverSkipLegDay',W/2,fy);
     // Border
     ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.strokeRect(8,8,W-16,H-16);
-  },[vol,comps]);
+  },[vol,comps,cmt]);
   const save=()=>{const c=ref.current;const a=document.createElement('a');a.download='workout-'+new Date().toISOString().slice(0,10)+'.png';a.href=c.toDataURL('image/png');a.click()};
   return html`<div style=${{textAlign:'center'}}>
     <canvas ref=${ref} style=${{borderRadius:12,maxWidth:'100%'}}/>
