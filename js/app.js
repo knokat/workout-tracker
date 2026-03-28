@@ -38,28 +38,40 @@ function App(){
   const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setWCmt(d.wCmt||'');setStT(d.st||Date.now());setScr('workout');setHasA(false)};
   const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
   const gL=d=>[...all].reverse().find(w=>w.day===d);
+
+  // Resolve legacy ID: given a stable exercise ID and a workout's day, find the old e1/e2/etc ID
+  const getLegacyId=(stableId,wDay)=>{
+    for(const[k,v]of Object.entries(LEGACY_ID_MAP)){
+      if(v!==stableId)continue;
+      // k is like "1:e1" or "3:e5" – only match if the day prefix matches the workout's day
+      const parts=k.split(':');
+      if(parts.length===2&&parseInt(parts[0])===wDay)return parts[1];
+    }
+    return null;
+  };
+
   // Find last exercise data across ALL workouts (cross-day), with legacy ID support
   const gLE=(day,id)=>{
-    // Build list of IDs to search for: current stable ID + any legacy IDs that map to it
-    const searchIds=[id];
-    Object.entries(LEGACY_ID_MAP).forEach(([k,v])=>{if(v===id)searchIds.push(k.split(':')[1])});
-    // Search all workouts reverse (newest first), across all days
     for(let i=all.length-1;i>=0;i--){
       const w=all[i];
-      for(const sid of searchIds){
-        const sets=w.exs?.[sid];
-        // Only return if there's actual data (not skipped/empty)
-        if(sets&&sets.length>0&&sets.some(s=>s.reps||s.rR||s.secs||s.sR||s.kg||s.kR))return sets;
+      // 1. Try direct match with stable ID (works for new workouts saved with stable IDs)
+      const sets=w.exs?.[id];
+      if(sets&&sets.length>0&&sets.some(s=>s.reps||s.rR||s.secs||s.sR||s.kg||s.kR))return sets;
+      // 2. Try legacy ID for THIS workout's day (old workouts saved with e1/e2/etc)
+      const legId=getLegacyId(id,w.day);
+      if(legId){
+        const lsets=w.exs?.[legId];
+        if(lsets&&lsets.length>0&&lsets.some(s=>s.reps||s.rR||s.secs||s.sR||s.kg||s.kR))return lsets;
       }
     }
     return null;
   };
   const gLN=(day,id)=>{
-    const searchIds=[id];
-    Object.entries(LEGACY_ID_MAP).forEach(([k,v])=>{if(v===id)searchIds.push(k.split(':')[1])});
     for(let i=all.length-1;i>=0;i--){
       const w=all[i];
-      for(const sid of searchIds){if(w.nts?.[sid])return w.nts[sid]}
+      if(w.nts?.[id])return w.nts[id];
+      const legId=getLegacyId(id,w.day);
+      if(legId&&w.nts?.[legId])return w.nts[legId];
     }
     return null;
   };
