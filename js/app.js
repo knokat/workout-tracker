@@ -424,6 +424,19 @@ function App(){
       </div>
 
       <div>
+        <div class=label style=${{marginBottom:12}}>App</div>
+        <div style=${{display:'flex',flexDirection:'column',gap:10}}>
+          <button onClick=${async()=>{try{const regs=await navigator.serviceWorker?.getRegistrations();for(const r of(regs||[]))await r.unregister();const keys=await caches.keys();for(const k of keys)await caches.delete(k)}catch(e){}location.reload(true)}} class=glass style=${{padding:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div style=${{display:'flex',alignItems:'center',gap:12}}>
+              <svg width=18 height=18 viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width=2><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+              <span style=${{fontSize:14}}>App aktualisieren</span>
+            </div>
+            <span class=mono style=${{fontSize:10,color:'var(--t5)'}}>Cache leeren & neu laden</span>
+          </button>
+        </div>
+      </div>
+
+      <div>
         <div class=label style=${{marginBottom:12}}>Data Management</div>
         <div style=${{display:'flex',flexDirection:'column',gap:10}}>
           <div class=glass style=${{padding:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
