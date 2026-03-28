@@ -75,4 +75,35 @@ ex:[
 
 export const COMPS=[{n:"Kühe",e:"🐄",k:700},{n:"Pferde",e:"🐴",k:500},{n:"Katzen",e:"🐱",k:4.5},{n:"Pinguine",e:"🐧",k:30},{n:"Hühner",e:"🐔",k:2.5},{n:"Goldhamster",e:"🐹",k:.03},{n:"VW Golfs",e:"🚗",k:1400},{n:"Fahrräder",e:"🚲",k:12},{n:"E-Scooter",e:"🛴",k:14},{n:"Döner",e:"🥙",k:.35},{n:"Pizzen",e:"🍕",k:.8},{n:"Schnitzel",e:"🥩",k:.25},{n:"Maß Bier",e:"🍺",k:2.3},{n:"Waschmaschinen",e:"🫧",k:70},{n:"Goldbarren",e:"🥇",k:12.4},{n:"Einhörner",e:"🦄",k:450},{n:"Bowlingkugeln",e:"🎳",k:6.3},{n:"Bernhardiner",e:"🐕",k:80}];
 
-export const rndC=(kg,n=5)=>[...COMPS].sort(()=>Math.random()-.5).slice(0,n).map(c=>({...c,a:(kg/c.k).toFixed(c.k<1?0:1)}));
+export const rndC=(kg)=>{
+  // Pick 4-6 random items, find combination that sums to exact volume
+  const n=4+Math.floor(Math.random()*3); // 4, 5 or 6 items
+  const shuffled=[...COMPS].sort(()=>Math.random()-.5);
+  const picked=shuffled.slice(0,n).sort((a,b)=>b.k-a.k); // heaviest first
+  const result=[];
+  let remaining=kg;
+  for(let i=0;i<picked.length;i++){
+    const item=picked[i];
+    if(i===picked.length-1){
+      // Last item: use whatever is left (even fractional)
+      const amt=remaining/item.k;
+      if(amt>=0.1)result.push({...item,a:amt<10?amt.toFixed(1):Math.round(amt)});
+      else if(remaining>0)result.push({...item,a:amt.toFixed(1)});
+    } else {
+      // Take random portion: 1 to max that fits, leave enough for remaining items
+      const maxFit=Math.floor(remaining/item.k);
+      if(maxFit<1){result.push({...item,a:0});continue}
+      // Take 1 to maxFit, but leave at least a little for remaining items
+      const minLeave=picked.slice(i+1).reduce((s,p)=>s+p.k*0.1,0);
+      const maxTake=Math.max(1,Math.min(maxFit,Math.floor((remaining-minLeave)/item.k)));
+      const take=Math.max(1,Math.ceil(Math.random()*maxTake));
+      result.push({...item,a:take});
+      remaining-=take*item.k;
+      if(remaining<=0)break;
+    }
+  }
+  // Filter out zeros, compute actual total
+  const filtered=result.filter(r=>r.a>0&&parseFloat(r.a)>0);
+  const total=filtered.reduce((s,r)=>s+parseFloat(r.a)*r.k,0);
+  return{items:filtered,total:Math.round(total)};
+};
