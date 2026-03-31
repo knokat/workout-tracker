@@ -10,6 +10,11 @@ export const BANDS=[
   {id:"gruen",label:"🟢 Grün (50-125 lbs)",color:"#30a030",lbs:"50-125",kg:40},
 ];
 
+// Plan version cutoff: workouts before this date used a different plan structure
+// Used to show correct labels and compare only within same plan version
+export const PLAN_V2_DATE='2026-04-01'; // v2 starts April 2026
+export const PLAN_V1_LABELS={1:"Lower Body",2:"Upper Body",3:"Full Body"};
+
 export const PLANS={1:{name:"Tag 1",label:"Hinge + Pull",icon:"🦵",loc:"HomeGym",
 wu:[
   {id:"w1",n:"90/90 Transitions",r:"10"},

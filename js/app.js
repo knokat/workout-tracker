@@ -1,7 +1,7 @@
 // app.js – Hauptkomponente, Auth, Screens, State (Redesign v2)
 
 import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
-import { PLANS, LEGACY_ID_MAP } from './plans.js';
+import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V1_LABELS } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
 import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct } from './db.js';
 import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart } from './components.js';
@@ -37,7 +37,9 @@ function App(){
   const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setWuCk({});setWCmt('');setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
   const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setWCmt(d.wCmt||'');setStT(d.st||Date.now());setScr('workout');setHasA(false)};
   const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
-  const gL=d=>[...all].reverse().find(w=>w.day===d);
+  const gL=d=>[...all].reverse().find(w=>w.day===d&&w.date>=PLAN_V2_DATE);
+  const gLold=d=>[...all].reverse().find(w=>w.day===d&&w.date<PLAN_V2_DATE);
+  const planLabel=(w)=>w.date<PLAN_V2_DATE?(PLAN_V1_LABELS[w.day]||PLANS[w.day]?.label):PLANS[w.day]?.label;
 
   // Resolve legacy ID: given a stable exercise ID and a workout's day, find the old e1/e2/etc ID
   const getLegacyId=(stableId,wDay)=>{
@@ -166,7 +168,7 @@ function App(){
         <div class=label style=${{marginBottom:12}}>Recent Performance</div>
         <div class=glass style=${{padding:'4px 16px'}}>
           ${rec.slice(0,3).map((w,i)=>{const p=PLANS[w.day];return html`<div key=${w.id} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 0',borderBottom:i<2?'1px solid rgba(255,255,255,0.05)':'none'}}>
-            <span style=${{fontSize:14,fontWeight:500}}>${p?.label||'Workout'}</span>
+            <span style=${{fontSize:14,fontWeight:500}}>${planLabel(w)||'Workout'}</span>
             <div>
               <span class=mono style=${{fontSize:12,color:'var(--t4)',marginRight:12}}>${new Date(w.date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}</span>
               <span class=mono style=${{fontSize:14,fontWeight:700,color:'var(--acc)'}}>${w.vol?.toLocaleString('de-DE')} kg</span>
@@ -240,7 +242,7 @@ function App(){
   /* ══════════════════════════════════════════════
      SUMMARY SCREEN
      ══════════════════════════════════════════════ */
-  if(scr==='summary'&&curW){const plan=PLANS[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id).slice(-1)[0];const pv=prev?.vol||0;
+  if(scr==='summary'&&curW){const plan=PLANS[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id&&w.date>=PLAN_V2_DATE).slice(-1)[0];const pv=prev?.vol||0;
     const durH=Math.floor(curW.dur/60),durM=curW.dur%60;const durStr=durH>0?durH+'h '+durM+' Min':curW.dur+' Min';
     const progs=[];if(prev?.exs){plan.ex.forEach(ex=>{const cur=curW.exs?.[ex.id],old=prev.exs?.[ex.id];if(!cur||!old)return;
       const cMax=Math.max(...cur.filter(s=>!s.isW).map(s=>parseFloat(s.kg||s.kR||0)||0));
@@ -391,7 +393,7 @@ function App(){
         </div>
         <div style=${{flex:1}}>
           <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-            <span style=${{fontSize:17,fontWeight:700}}>${p?.label||'Workout'}</span>
+            <span style=${{fontSize:17,fontWeight:700}}>${planLabel(w)||'Workout'}</span>
             <span class=mono style=${{fontSize:10,color:'var(--t4)',letterSpacing:1}}>${new Date(w.date).toLocaleDateString('de-DE')}</span>
           </div>
           <div style=${{marginTop:6,display:'flex',gap:16}}>
