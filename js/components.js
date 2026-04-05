@@ -15,7 +15,10 @@ export function WorkoutTimer({startTime}){
 /* ── Timer (Pausen/Übungs/Warmup) ── */
 export function Timer({sec:initS,label}){
   const[s,setS]=useState(initS);const[run,setRun]=useState(false);const[adj,setAdj]=useState(initS);const ref=useRef(null);
-  useEffect(()=>{if(run&&s>0)ref.current=setInterval(()=>setS(v=>v-1),1000);else if(s<=0&&run)setRun(false);return()=>clearInterval(ref.current)},[run,s]);
+  const beep=()=>{try{const ac=new(window.AudioContext||window.webkitAudioContext)();const g=ac.createGain();g.connect(ac.destination);g.gain.value=0.5;
+    [880,0,880,0,1320].forEach((f,i)=>{if(f===0)return;const o=ac.createOscillator();o.type='square';o.frequency.value=f;o.connect(g);o.start(ac.currentTime+i*0.15);o.stop(ac.currentTime+i*0.15+0.12)});
+    setTimeout(()=>ac.close(),2000)}catch(e){}try{navigator.vibrate&&navigator.vibrate([200,100,200,100,300])}catch(e){}};
+  useEffect(()=>{if(run&&s>0)ref.current=setInterval(()=>setS(v=>{if(v-1<=0){beep();return 0}return v-1}),1000);else if(s<=0&&run)setRun(false);return()=>clearInterval(ref.current)},[run,s]);
   const pct=adj>0?(s/adj)*100:0,done=s<=0&&!run,mn=Math.floor(s/60),sc=s%60;
   const ad=d=>{const v=Math.max(5,adj+d);setAdj(v);if(!run)setS(v)};
   return html`<div class=glass style=${{padding:'10px 14px',margin:'8px 0'}}>

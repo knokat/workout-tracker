@@ -13,7 +13,9 @@ export const BANDS=[
 // Plan version cutoff: workouts before this date used a different plan structure
 // Used to show correct labels and compare only within same plan version
 export const PLAN_V2_DATE='2026-04-01'; // v2 starts April 2026
+export const PLAN_V3_DATE='2026-04-06'; // v3 starts 6 April 2026
 export const PLAN_V1_LABELS={1:"Lower Body",2:"Upper Body",3:"Full Body"};
+export const PLAN_V2_LABELS={1:"Hinge + Pull",2:"Squat + Push",3:"Heavy Compounds"};
 
 export const PLANS={1:{name:"Tag 1",label:"Hinge + Pull",icon:"🦵",loc:"HomeGym",
 wu:[
@@ -30,9 +32,10 @@ ex:[
   {id:"cable-row",n:"Cable Row",s:3,rp:"8-10",tp:"3-0-1-2",rs:90,m:"Ob. Rücken, Lats",w:"Horiz. Pull",u:0,h:"Grip: Wo1 Pronated→Wo2 Neutral→Wo3 Supinated"},
   {id:"sl-hip-thrust",n:"SL Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Glutes",w:"Physio – 1x/Wo unilateral. Superset mit Lat Pulldown",u:1},
   {id:"lat-pulldown",n:"Lat Pulldown (Neutral Grip)",s:3,rp:"8-10",tp:"2-0-1-0",rs:75,m:"Lats, Bizeps",w:"Klimmzug-Kraftaufbau",u:0},
-  {id:"sb-leg-curl",n:"Swiss Ball Leg Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Kniestabilität",w:"Superset mit Bar Hang",u:0},
-  {id:"bar-hang",n:"Bar Hang",s:2,rp:"—",tp:"—",rs:60,m:"Unterarme, Lats",w:"Grip + Dekompression",u:0,iso:1,iS:25},
-  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Fußsohlen. Superset mit Copenhagen Plank",u:1},
+  {id:"sb-leg-curl",n:"Swiss Ball Leg Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Kniestabilität",w:"Superset mit Bizeps Curls",u:0},
+  {id:"bicep-curl",n:"❤️ Bizeps Curls",s:3,rp:"12",tp:"2-1-1-0",rs:60,m:"Bizeps",w:"Liebling! Armästhetik",u:0},
+  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Superset mit Lateral Raises",u:1},
+  {id:"db-lat-raise",n:"⭐ Lateral Raises",s:2,rp:"12-15",tp:"2-0-1-0",rs:60,m:"Seitl. Schulter",w:"Optional – Schulter-Maintenance",u:0,opt:1},
   {id:"copenhagen-plank",n:"Copenhagen Plank",s:2,rp:"—",tp:"iso",rs:60,m:"Adduktoren, Core",w:"Optional – Hüftstabilität",u:1,iso:1,iS:30,opt:1}
 ]},
 2:{name:"Tag 2",label:"Squat + Push",icon:"💪",loc:"HomeGym",wu:[
@@ -45,32 +48,30 @@ ex:[
   {id:"w7",n:"Around the Worlds",r:"10/S"},
   {id:"w8",n:"Band Pull Aparts",r:"10"}],
 ex:[
-  {id:"deep-box-split-squat",n:"Deep Box Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:75,m:"Quads (Vastus Medialis), Glutes",w:"Physio: Stepper, Gewicht auf vorderem Fuß, Sprunggelenk 90°, nur bis Knie 90° hoch",u:1},
-  {id:"db-ohp",n:"DB Overhead Press",s:3,rp:"8-10",tp:"2-0-1-0",rs:0,ss:1,m:"Schultern, Trizeps",w:"Compound Push. Superset mit Box Squat – Bein-Erholung",u:0},
-  {id:"banded-box-squat",n:"Banded Box Squat (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Quads, Glutes, Core",w:"Langhantel + Band um Knie, auf Box",u:0},
-  {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Trizeps",w:"Superset mit Serratus",u:0},
-  {id:"serratus-raise",n:"Serratus Front Raise",s:2,rp:"12-15/S",tp:"2-0-1-0",rs:60,m:"Serratus Anterior",w:"Schulterstabilität",u:0},
-  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Fußsohlen. Superset mit Hip Flexion",u:1},
-  {id:"banded-hip-flex",n:"Banded Standing Hip Flexion",s:2,rp:"12-15",tp:"1-1-1-0",rs:60,m:"Hip Flexoren",w:"Optional – E3 Hip Resilience",u:1,opt:1,demo:"vimeo:647978267"}
+  {id:"deep-box-split-squat",n:"Deep Box Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:0,ss:1,m:"Quads (Vastus Medialis), Glutes",w:"Physio: Stepper, Gewicht auf vorderem Fuß, Sprunggelenk 90°, nur bis Knie 90° hoch. Superset mit OHP",u:1},
+  {id:"db-ohp",n:"DB Overhead Press",s:3,rp:"8-10",tp:"2-0-1-0",rs:75,m:"Schultern, Trizeps",w:"Compound Push",u:0},
+  {id:"banded-box-squat",n:"Banded Box Squat (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Physio – Langhantel + Band um Knie. Superset mit Tri Pushdown",u:0},
+  {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"",u:0},
+  {id:"sl-rdl",n:"SL RDL",s:3,rp:"10",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes, Hüftstabilität",w:"Bei linkem Standbein etwas nach rechts eindrehen. Superset mit SL Calf Raise",u:1},
+  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:60,m:"Gastrocnemius",w:"",u:1}
 ]},
-3:{name:"Tag 3",label:"Heavy Compounds",icon:"🏋️",loc:"Gym (FitInn)",wu:[
+3:{name:"Tag 3",label:"Heavy Compounds + Rehab",icon:"🏋️",loc:"Gym (FitInn)",wu:[
   {id:"w1",n:"90/90 Transitions",r:"10"},
   {id:"w2",n:"Hip Flexor Lunges",r:"10/S"},
-  {id:"w3",n:"Cook Glute Bridge",r:"3×10",nt:"Physio – Glute-Aktivierung",sets:"3 Sets × 10 Reps"},
+  {id:"w3",n:"HG IR/AR Übung",r:"3×10/Seite",nt:"Physio",sets:"3 Sets × 10 Reps/Seite"},
   {id:"w4",n:"Banded Clamshells",r:"3×12-15",nt:"Physio – schweres Band!",sets:"3 Sets × 12-15 Reps"},
   {id:"w5",n:"Patella-Dehnung links",r:"1-2×60-120s",nt:"Physio – Kniescheibe nach unten",sets:"1-2 Sets × 60-120 Sek",timer:90},
   {id:"w6",n:"Shoulder Dislocates",r:"10",nt:"langes Loop-Band"},
   {id:"w7",n:"Scapular Pull-Ups",r:"8-10",nt:"MULTI 7"}],
 ex:[
-  {id:"hip-thrust",n:"❤️ Hip Thrust",s:4,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Beidbeinig",u:0,g:"GESÄSS 3F 🏷️"},
-  {id:"pull-up-mach",n:"❤️ Klimmzug-Progr.",s:3,rp:"6-8",tp:"1-0-1-0",rs:90,m:"Lats, Bizeps, Core",w:"Maschine-Assisted",u:0,ast:1,g:"MULTI 7"},
-  {id:"sl-rdl",n:"SL RDL",s:3,rp:"5",tp:"2-1-1-0",rs:75,m:"Hamstrings, Glutes, Hüftstabilität",w:"Physio – 12,5kg KH. Li Standbein: etwas nach re eindrehen",u:1,g:"GEWICHTE 1A"},
-  {id:"cable-hip-abd",n:"Cable Hip Abduction",s:5,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",w:"Physio: Kapazität. Hüfte aufrichten, Ferse zuerst, eher Schlittschuh",u:1,g:"MULTI 1 🏷️"},
+  {id:"hip-thrust",n:"❤️ Hip Thrust",s:4,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Beidbeinig, schwer",u:0,g:"GESÄSS 3F 🏷️"},
+  {id:"pull-up-mach",n:"❤️ Klimmzug-Progr.",s:4,rp:"6-8",tp:"1-0-1-0",rs:90,m:"Lats, Bizeps, Core",w:"Maschine-Assisted",u:0,ast:1,g:"MULTI 7"},
+  {id:"cable-hip-abd",n:"Cable Hip Abduction",s:5,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",w:"Physio: Kapazität. Hüfte aufrichten, Ferse zuerst, eher Schlittschuh. Superset mit Adduction",u:1,g:"MULTI 1 🏷️"},
   {id:"cable-hip-add",n:"Cable Hip Adduction",s:5,rp:"12-15",tp:"1-1-1-0",rs:30,m:"Adduktoren",w:"Physio: Kapazität. Hüfte aufrichten, Ferse zuerst, eher Schlittschuh",u:1,g:"MULTI 1 🏷️",demo:"vimeo:832809720"},
   {id:"cable-bicep",n:"❤️ Cable Biceps Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:30,m:"Bizeps",w:"Liebling!",u:1,g:"MULTI 1 🏷️"},
   {id:"butterfly",n:"Butterfly",s:2,rp:"10-12",tp:"2-0-1-0",rs:60,m:"Brust",w:"Optional – Brust-Maintenance",u:0,opt:1,g:"BRUST 3B 🏷️"},
-  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"Fußsohlen",u:1,g:"BEINE 4D"},
-  {id:"sl-leg-ext",n:"SL Leg Extension",s:2,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Knie-Rehab! Physio: am Ende!",u:1,g:"BEINE 1A 🏷️"}
+  {id:"sl-leg-ext",n:"SL Leg Extension",s:2,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Knie-Rehab! Physio: am Ende!",u:1,g:"BEINE 1A 🏷️"},
+  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"",u:1,g:"BEINE 4D"}
 ]}};
 
 // Legacy ID mapping: old positional IDs → new stable IDs

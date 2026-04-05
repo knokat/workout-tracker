@@ -1,7 +1,7 @@
 // app.js – Hauptkomponente, Auth, Screens, State (Redesign v2)
 
 import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
-import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V1_LABELS } from './plans.js';
+import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V3_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
 import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct } from './db.js';
 import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart } from './components.js';
@@ -37,9 +37,9 @@ function App(){
   const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setWuCk({});setWCmt('');setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
   const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setWCmt(d.wCmt||'');setStT(d.st||Date.now());setScr('workout');setHasA(false)};
   const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
-  const gL=d=>[...all].reverse().find(w=>w.day===d&&w.date>=PLAN_V2_DATE);
-  const gLold=d=>[...all].reverse().find(w=>w.day===d&&w.date<PLAN_V2_DATE);
-  const planLabel=(w)=>w.date<PLAN_V2_DATE?(PLAN_V1_LABELS[w.day]||PLANS[w.day]?.label):PLANS[w.day]?.label;
+  const gL=d=>[...all].reverse().find(w=>w.day===d&&w.date>=PLAN_V3_DATE);
+  const gLold=d=>[...all].reverse().find(w=>w.day===d&&w.date<PLAN_V3_DATE);
+  const planLabel=(w)=>w.date<PLAN_V2_DATE?(PLAN_V1_LABELS[w.day]||PLANS[w.day]?.label):w.date<PLAN_V3_DATE?(PLAN_V2_LABELS[w.day]||PLANS[w.day]?.label):PLANS[w.day]?.label;
 
   // Resolve legacy ID: given a stable exercise ID and a workout's day, find the old e1/e2/etc ID
   const getLegacyId=(stableId,wDay)=>{
@@ -242,15 +242,17 @@ function App(){
   /* ══════════════════════════════════════════════
      SUMMARY SCREEN
      ══════════════════════════════════════════════ */
-  if(scr==='summary'&&curW){const plan=PLANS[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id&&w.date>=PLAN_V2_DATE).slice(-1)[0];const pv=prev?.vol||0;
+  if(scr==='summary'&&curW){const plan=PLANS[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id&&w.date>=PLAN_V3_DATE).slice(-1)[0];const pv=prev?.vol||0;
     const durH=Math.floor(curW.dur/60),durM=curW.dur%60;const durStr=durH>0?durH+'h '+durM+' Min':curW.dur+' Min';
-    const progs=[];if(prev?.exs){plan.ex.forEach(ex=>{const cur=curW.exs?.[ex.id],old=prev.exs?.[ex.id];if(!cur||!old)return;
+    const progs=[],regs=[];if(prev?.exs){plan.ex.forEach(ex=>{const cur=curW.exs?.[ex.id],old=prev.exs?.[ex.id];if(!cur||!old)return;
       const cMax=Math.max(...cur.filter(s=>!s.isW).map(s=>parseFloat(s.kg||s.kR||0)||0));
       const oMax=Math.max(...old.filter(s=>!s.isW).map(s=>parseFloat(s.kg||s.kR||0)||0));
       const cReps=Math.max(...cur.filter(s=>!s.isW).map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
       const oReps=Math.max(...old.filter(s=>!s.isW).map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
       if(cMax>oMax)progs.push({n:ex.n,t:'kg',v:cMax-oMax});
       else if(cMax===oMax&&cReps>oReps)progs.push({n:ex.n,t:'reps',v:cReps-oReps});
+      else if(cMax<oMax)regs.push({n:ex.n,t:'kg',v:oMax-cMax});
+      else if(cMax===oMax&&cReps<oReps)regs.push({n:ex.n,t:'reps',v:oReps-cReps});
     })}
     return html`<div style=${{padding:'32px 20px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',minHeight:'100dvh'}}>
       <div style=${{marginBottom:28}}>
@@ -270,6 +272,11 @@ function App(){
       ${progs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:20,textAlign:'left'}}>
         <div style=${{fontSize:14,fontWeight:700,color:'var(--acc)',marginBottom:8}}>💪 Gesteigert bei ${progs.length} Übung${progs.length>1?'en':''}!</div>
         ${progs.map(p=>html`<div style=${{fontSize:13,color:'var(--t2)',padding:'3px 0'}}>↗️ ${p.n}: +${p.v} ${p.t}</div>`)}
+      </div>`:null}
+
+      ${regs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:20,textAlign:'left',borderColor:'var(--dngB)'}}>
+        <div style=${{fontSize:14,fontWeight:700,color:'var(--dng)',marginBottom:8}}>📉 Weniger bei ${regs.length} Übung${regs.length>1?'en':''}:</div>
+        ${regs.map(r=>html`<div style=${{fontSize:13,color:'var(--t3)',padding:'3px 0'}}>↘️ ${r.n}: −${r.v} ${r.t}</div>`)}
       </div>`:null}
 
       ${curW.cmt?html`<div class=glass style=${{width:'100%',padding:'14px 18px',marginBottom:20,textAlign:'left'}}>
