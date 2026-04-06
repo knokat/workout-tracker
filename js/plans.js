@@ -26,6 +26,7 @@ wu:[
   {id:"w5",n:"Patella-Dehnung links",r:"1-2×60-120s",nt:"Physio – Kniescheibe nach unten",sets:"1-2 Sets × 60-120 Sek",timer:90},
   {id:"w6",n:"Shoulder Dislocates",r:"10",nt:"Band"},
   {id:"w7",n:"Banded External Rotations",r:"12-15/S"},
+  {id:"w8",n:"Calf Stretch (Ankle Mobility)",r:"5×5s/S",nt:"Fuß auf Bank/Stuhl, Knie über Zehen drücken, Ferse am Boden",demo:"yt:5alpa1IikQM?si=i02H-V3NWk1yS6zL&t=428"},
 ],
 ex:[
   {id:"rdl",n:"❤️ RDL (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Liebling! Superset mit Cable Row",u:0},
@@ -46,11 +47,12 @@ ex:[
   {id:"w5",n:"Cook Glute Bridge",r:"3×10",nt:"Physio – Glute-Aktivierung",sets:"3 Sets × 10 Reps"},
   {id:"w6",n:"Patella-Dehnung links",r:"1-2×60-120s",nt:"Physio – Kniescheibe nach unten",sets:"1-2 Sets × 60-120 Sek",timer:90},
   {id:"w7",n:"Around the Worlds",r:"10/S"},
-  {id:"w8",n:"Band Pull Aparts",r:"10"}],
+  {id:"w8",n:"Band Pull Aparts",r:"10"},
+  {id:"w9",n:"Calf Stretch (Ankle Mobility)",r:"5×5s/S",nt:"Fuß auf Bank/Stuhl, Knie über Zehen drücken, Ferse am Boden",demo:"yt:5alpa1IikQM?si=i02H-V3NWk1yS6zL&t=428"}],
 ex:[
-  {id:"deep-box-split-squat",n:"Deep Box Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:0,ss:1,m:"Quads (Vastus Medialis), Glutes",w:"Physio: Stepper, Gewicht auf vorderem Fuß, Sprunggelenk 90°, nur bis Knie 90° hoch. Superset mit OHP",u:1},
+  {id:"deep-box-split-squat",n:"Deep Box Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:0,ss:1,m:"Quads (Vastus Medialis), Glutes",w:"Physio: Stepper, Gewicht auf vorderem Fuß, Sprunggelenk 90°, nur bis Knie 90° hoch. Superset mit OHP",u:1,h:"Langer Femur: Heel Elevation, Goblet- oder Front-Squat-Variante ausprobieren"},
   {id:"db-ohp",n:"DB Overhead Press",s:3,rp:"8-10",tp:"2-0-1-0",rs:75,m:"Schultern, Trizeps",w:"Compound Push",u:0},
-  {id:"banded-box-squat",n:"Banded Box Squat (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Physio – Langhantel + Band um Knie. Superset mit Tri Pushdown",u:0},
+  {id:"banded-box-squat",n:"Banded Box Squat (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Physio – Langhantel + Band um Knie. Superset mit Tri Pushdown",u:0,h:"Langer Femur: Heel Elevation, breiterer Stand, Goblet-Variante testen"},
   {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"",u:0},
   {id:"sl-rdl",n:"SL RDL",s:3,rp:"10",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes, Hüftstabilität",w:"Bei linkem Standbein etwas nach rechts eindrehen. Superset mit SL Calf Raise",u:1},
   {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:60,m:"Gastrocnemius",w:"",u:1}
@@ -62,7 +64,8 @@ ex:[
   {id:"w4",n:"Banded Clamshells",r:"3×12-15",nt:"Physio – schweres Band!",sets:"3 Sets × 12-15 Reps"},
   {id:"w5",n:"Patella-Dehnung links",r:"1-2×60-120s",nt:"Physio – Kniescheibe nach unten",sets:"1-2 Sets × 60-120 Sek",timer:90},
   {id:"w6",n:"Shoulder Dislocates",r:"10",nt:"langes Loop-Band"},
-  {id:"w7",n:"Scapular Pull-Ups",r:"8-10",nt:"MULTI 7"}],
+  {id:"w7",n:"Scapular Pull-Ups",r:"8-10",nt:"MULTI 7"},
+  {id:"w8",n:"Calf Stretch (Ankle Mobility)",r:"5×5s/S",nt:"Fuß auf Bank/Stuhl, Knie über Zehen drücken, Ferse am Boden",demo:"yt:5alpa1IikQM?si=i02H-V3NWk1yS6zL&t=428"}],
 ex:[
   {id:"hip-thrust",n:"❤️ Hip Thrust",s:4,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Beidbeinig, schwer",u:0,g:"GESÄSS 3F 🏷️"},
   {id:"pull-up-mach",n:"❤️ Klimmzug-Progr.",s:4,rp:"6-8",tp:"1-0-1-0",rs:90,m:"Lats, Bizeps, Core",w:"Maschine-Assisted",u:0,ast:1,g:"MULTI 7"},

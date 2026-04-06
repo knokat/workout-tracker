@@ -115,6 +115,9 @@ export function AstBand({d,onChange}){
   </div>`;
 }
 
+/* ── demoUrl: resolve demo field to full URL ── */
+function demoUrl(d){if(!d)return null;if(d.startsWith('vimeo:'))return'https://vimeo.com/'+d.slice(6);if(d.startsWith('yt:'))return'https://youtu.be/'+d.slice(3);return d}
+
 /* ── EC: Exercise Card ── */
 export function EC({ex,sets,onSet,onAdd,onRm,last,lastN,ast,onAst,note,onNote}){
   const[col,setCol]=useState(false);const[skip,setSkip]=useState(false);const[shN,setShN]=useState(false);
@@ -138,7 +141,7 @@ export function EC({ex,sets,onSet,onAdd,onRm,last,lastN,ast,onAst,note,onNote}){
         <div class=mono style=${{fontSize:11,color:'var(--t3)',marginTop:2}}>${ex.s}×${ex.rp}${ex.tp&&ex.tp!=='—'&&ex.tp!=='iso'?' · '+ex.tp:''}${ex.g?' · '+ex.g:''}</div>
       </div>
       <div style=${{display:'flex',gap:6,flexShrink:0,alignItems:'center'}}>
-        ${ex.demo?html`<a href=${'https://vimeo.com/'+ex.demo.replace('vimeo:','')} target="_blank" rel="noopener" class=mono style=${{padding:'4px 10px',fontSize:10,fontWeight:700,letterSpacing:1,color:'var(--blu)',background:'var(--bluA)',borderRadius:'var(--rxs)',textTransform:'uppercase',textDecoration:'none'}}>Demo</a>`:null}
+        ${ex.demo?html`<a href=${demoUrl(ex.demo)} target="_blank" rel="noopener" class=mono style=${{padding:'4px 10px',fontSize:10,fontWeight:700,letterSpacing:1,color:'var(--blu)',background:'var(--bluA)',borderRadius:'var(--rxs)',textTransform:'uppercase',textDecoration:'none'}}>Demo</a>`:null}
         <button onClick=${()=>setShN(!shN)} style=${{background:'none',color:note?'var(--wrn)':'var(--t5)',fontSize:15,padding:4}}>📝</button>
         <button onClick=${()=>setSkip(true)} class=mono style=${{padding:'4px 10px',fontSize:10,fontWeight:700,letterSpacing:1,color:'var(--t5)',background:'none',textTransform:'uppercase'}}>Skip</button>
       </div>
@@ -206,6 +209,7 @@ export function WU({items, ck, onCk}){
           ${w.sets?html`<div class=mono style=${{fontSize:11,color:'var(--acc)',marginTop:2}}>${w.sets}</div>`:
           html`<span class=mono style=${{fontSize:11,color:'var(--t4)',marginLeft:6}}>${w.r}</span>`}
         </div>
+        ${w.demo?html`<a href=${demoUrl(w.demo)} target="_blank" rel="noopener" class=mono style=${{padding:'3px 8px',fontSize:9,fontWeight:700,letterSpacing:1,color:'var(--blu)',background:'var(--bluA)',borderRadius:'var(--rxs)',textTransform:'uppercase',textDecoration:'none',flexShrink:0}}>Demo</a>`:null}
         <button onClick=${()=>setNf(nf===w.id?null:w.id)} style=${{background:'none',color:nts[w.id]?'var(--wrn)':'var(--t5)',fontSize:14,padding:4}}>📝</button>
       </div>
       ${w.nt?html`<div style=${{fontSize:11,color:'var(--wrn)',marginLeft:32,marginTop:2}}>${w.nt}</div>`:null}
