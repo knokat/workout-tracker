@@ -315,6 +315,7 @@ export function BottomNav({active,onNav}){
     {id:'home',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><path d="M6.5 6.5h3v11h-3z"/><path d="M14.5 6.5h3v11h-3z"/><path d="M9.5 11h5"/><path d="M9.5 13h5"/><path d="M4 8.5h2.5v7H4z"/><path d="M17.5 8.5H20v7h-2.5z"/></svg>`},
     {id:'analytics',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`},
     {id:'history',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>`},
+    {id:'calendar',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><rect x=3 y=4 width=18 height=18 rx=2 ry=2/><line x1=16 y1=2 x2=16 y2=6/><line x1=8 y1=2 x2=8 y2=6/><line x1=3 y1=10 x2=21 y2=10/></svg>`},
     {id:'settings',icon:html`<svg width=24 height=24 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`},
   ];
   return html`<nav style=${{
@@ -390,5 +391,81 @@ export function DonutChart({data}){
         </div>`)}
       </div>
     </div>
+  </div>`;
+}
+
+/* ── Calendar ── */
+const CAL_COLORS={1:'#F59E0B',2:'#3B82F6',3:'#10B981'};
+const CAL_BG={1:'rgba(245,158,11,0.15)',2:'rgba(59,130,246,0.15)',3:'rgba(16,185,129,0.15)'};
+export function Calendar({workouts}){
+  const[mo,setMo]=useState(()=>{const n=new Date();return{y:n.getFullYear(),m:n.getMonth()}});
+  const prev=()=>setMo(c=>c.m===0?{y:c.y-1,m:11}:{y:c.y,m:c.m-1});
+  const next=()=>{const n=new Date();if(mo.y>n.getFullYear()||(mo.y===n.getFullYear()&&mo.m>=n.getMonth()))return;setMo(c=>c.m===11?{y:c.y+1,m:0}:{y:c.y,m:c.m+1})};
+  const isNow=mo.y===new Date().getFullYear()&&mo.m===new Date().getMonth();
+
+  const wMap={};(workouts||[]).forEach(w=>{
+    const d=new Date(w.date);if(d.getFullYear()===mo.y&&d.getMonth()===mo.m){
+      const key=d.getDate();wMap[key]={day:w.day,vol:w.vol};
+    }
+  });
+
+  const firstDay=new Date(mo.y,mo.m,1).getDay();
+  const startOff=firstDay===0?6:firstDay-1;
+  const daysInMonth=new Date(mo.y,mo.m+1,0).getDate();
+  const today=new Date();const todayDate=today.getDate();
+  const moNames=['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+  const cells=[];
+  for(let i=0;i<startOff;i++)cells.push(null);
+  for(let d=1;d<=daysInMonth;d++)cells.push(d);
+
+  // Monthly stats
+  const moWorkouts=Object.values(wMap);
+  const totalVol=moWorkouts.reduce((t,w)=>t+w.vol,0);
+
+  return html`<div>
+    <div style=${{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
+      <button onClick=${prev} style=${{background:'none',color:'var(--t3)',padding:8,fontSize:22,fontWeight:500,lineHeight:1}}>‹</button>
+      <span style=${{fontSize:17,fontWeight:700}}>${moNames[mo.m]} ${mo.y}</span>
+      <button onClick=${next} style=${{background:'none',color:isNow?'var(--t5)':'var(--t3)',padding:8,fontSize:22,fontWeight:500,lineHeight:1,opacity:isNow?.3:1}}>›</button>
+    </div>
+
+    <div style=${{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:3,textAlign:'center'}}>
+      ${['Mo','Di','Mi','Do','Fr','Sa','So'].map(d=>html`<div key=${d} class=mono style=${{fontSize:11,color:'var(--t5)',padding:'4px 0',fontWeight:500}}>${d}</div>`)}
+
+      ${cells.map((d,i)=>{
+        if(d===null)return html`<div key=${'e'+i} style=${{minHeight:52}}></div>`;
+        const w=wMap[d];
+        const isToday=isNow&&d===todayDate;
+        return html`<div key=${d} style=${{
+          minHeight:52,padding:'5px 2px',borderRadius:'var(--rxs)',
+          background:w?CAL_BG[w.day]||'var(--bg2)':'transparent',
+          border:isToday?'1.5px solid var(--t4)':'1.5px solid transparent',
+          display:'flex',flexDirection:'column',alignItems:'center',gap:1
+        }}>
+          <div style=${{fontSize:13,fontWeight:w||isToday?500:400,color:w?'var(--t1)':'var(--t4)'}}>${d}</div>
+          ${w?html`<div class=mono style=${{fontSize:9,fontWeight:500,color:CAL_COLORS[w.day]||'var(--acc)',marginTop:1}}>Tag ${w.day}</div>
+            <div class=mono style=${{fontSize:8,color:'var(--t4)',marginTop:1}}>${w.vol?.toLocaleString('de-DE')} kg</div>`:null}
+        </div>`;
+      })}
+    </div>
+
+    <div style=${{display:'flex',justifyContent:'center',gap:16,marginTop:14,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.05)'}}>
+      ${[1,2,3].map(d=>html`<div key=${d} style=${{display:'flex',alignItems:'center',gap:6}}>
+        <div style=${{width:10,height:10,borderRadius:3,background:CAL_BG[d]}}></div>
+        <span class=mono style=${{fontSize:11,color:'var(--t5)'}}>Tag ${d}</span>
+      </div>`)}
+    </div>
+
+    ${moWorkouts.length>0?html`<div style=${{display:'flex',justifyContent:'space-around',marginTop:14,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.05)'}}>
+      <div style=${{textAlign:'center'}}>
+        <div class=mono style=${{fontSize:10,color:'var(--t5)',textTransform:'uppercase',letterSpacing:1}}>Workouts</div>
+        <div class=mono style=${{fontSize:18,fontWeight:700,color:'var(--acc)',marginTop:2}}>${moWorkouts.length}</div>
+      </div>
+      <div style=${{textAlign:'center'}}>
+        <div class=mono style=${{fontSize:10,color:'var(--t5)',textTransform:'uppercase',letterSpacing:1}}>Gesamt</div>
+        <div class=mono style=${{fontSize:18,fontWeight:700,color:'var(--acc)',marginTop:2}}>${totalVol.toLocaleString('de-DE')} kg</div>
+      </div>
+    </div>`:null}
   </div>`;
 }
