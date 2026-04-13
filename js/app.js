@@ -3,7 +3,7 @@
 import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
 import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V3_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
-import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct } from './db.js';
+import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct, dbDelWorkout } from './db.js';
 import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart, Calendar } from './components.js';
 
 /* ── Day Icons (SVG) ── */
@@ -24,6 +24,7 @@ function App(){
   const[curW,setCurW]=useState(null);const[hasA,setHasA]=useState(false);const[actR,setActR]=useState(null);
   const[aErr,setAErr]=useState('');const[em,setEm]=useState('');const[pw,setPw]=useState('');const[isR,setIsR]=useState(false);
   const svT=useRef(null);const[saving,setSaving]=useState(false);const[aFilter,setAFilter]=useState('all');
+  const[delConfirm,setDelConfirm]=useState(null);
 
   useEffect(()=>{sb.auth.getSession().then(({data})=>{if(data.session?.user)setUser(data.session.user);setALd(false)});
     const{data:l}=sb.auth.onAuthStateChange((_,s)=>setUser(s?.user||null));return()=>l.subscription.unsubscribe()},[]);
@@ -82,6 +83,7 @@ function App(){
     const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur),cmt:wCmt};
     setAll(p=>[...p,w]);setCurW(w);setHasA(false);setActR(null);setSaving(false);setScr('summary')};
   const navTo=s=>{setScr(s);if(s==='history')setDay(null)};
+  const deleteWorkout=async(wId)=>{await dbDelWorkout(wId);setAll(p=>p.filter(w=>w.id!==wId));setDelConfirm(null)};
 
   /* ── Loading ── */
   if(aLd)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:18,fontFamily:'var(--mono)'}}>Laden...</div>`;
@@ -304,12 +306,19 @@ function App(){
   if(scr==='analytics'){
     // Build exercise list from all plans
     const allExercises=[];Object.values(PLANS).forEach(p=>p.ex.forEach(e=>{if(!allExercises.find(x=>x.id===e.id))allExercises.push({id:e.id,n:e.n,day:p.name})}));
+    // Build day filter options
+    const dayFilters=[1,2,3].map(d=>({id:'day:'+d,label:PLANS[d]?.label||('Tag '+d)}));
 
     let chartData,muscleData;
+    const dayMatch=aFilter.match(/^day:(\d)$/);
     if(aFilter==='all'){
       chartData=all.map(w=>({date:w.date,vol:w.vol}));
-      // Muscle focus from all workouts
       const mg={};all.forEach(w=>{const p=PLANS[w.day];if(!p)return;p.ex.forEach(ex=>{const ms=ex.m.split(',').map(m=>m.trim());ms.forEach(m=>{mg[m]=(mg[m]||0)+(w.exs?.[ex.id]?.length||0)})})});
+      muscleData=Object.entries(mg).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,value])=>({name,value}));
+    } else if(dayMatch){
+      const dNum=parseInt(dayMatch[1]);
+      chartData=all.filter(w=>w.day===dNum).map(w=>({date:w.date,vol:w.vol}));
+      const mg={};all.filter(w=>w.day===dNum).forEach(w=>{const p=PLANS[w.day];if(!p)return;p.ex.forEach(ex=>{const ms=ex.m.split(',').map(m=>m.trim());ms.forEach(m=>{mg[m]=(mg[m]||0)+(w.exs?.[ex.id]?.length||0)})})});
       muscleData=Object.entries(mg).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,value])=>({name,value}));
     } else {
       // Single exercise filter
@@ -321,9 +330,10 @@ function App(){
       muscleData=null;
     }
 
-    // Stats
-    const avgDur=all.length?Math.round(all.reduce((t,w)=>t+w.dur,0)/all.length):0;
-    const totalWorkouts=all.length;
+    // Stats — scoped to filter
+    const filteredAll=dayMatch?all.filter(w=>w.day===parseInt(dayMatch[1])):all;
+    const avgDur=filteredAll.length?Math.round(filteredAll.reduce((t,w)=>t+w.dur,0)/filteredAll.length):0;
+    const totalWorkouts=aFilter==='all'?all.length:dayMatch?filteredAll.length:chartData.length;
 
     return html`<div style=${{paddingBottom:90}}>
       <header style=${{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'24px 20px',position:'relative',zIndex:10}}>
@@ -335,7 +345,12 @@ function App(){
         </div>
         <select value=${aFilter} onChange=${e=>setAFilter(e.target.value)} class=mono style=${{width:'auto',fontSize:12,padding:'8px 12px',borderRadius:'var(--rs)',textAlign:'left'}}>
           <option value="all">All Workouts</option>
-          ${allExercises.map(e=>html`<option key=${e.id} value=${e.id}>${e.n}</option>`)}
+          <optgroup label="Workout-Typ">
+            ${dayFilters.map(d=>html`<option key=${d.id} value=${d.id}>${d.label}</option>`)}
+          </optgroup>
+          <optgroup label="Einzelne Übung">
+            ${allExercises.map(e=>html`<option key=${e.id} value=${e.id}>${e.n}</option>`)}
+          </optgroup>
         </select>
       </header>
 
@@ -355,7 +370,7 @@ function App(){
           </div>
         </div>
 
-        ${aFilter==='all'?html`<div>
+        ${aFilter==='all'||dayMatch?html`<div>
           <div class=label style=${{marginBottom:12}}>Per Exercise</div>
           <div class=mono style=${{fontSize:12,color:'var(--t4)',textAlign:'center',padding:10}}>Wähle eine Übung im Dropdown oben</div>
         </div>`:html`<div>
@@ -394,14 +409,19 @@ function App(){
 
     <div style=${{padding:'0 20px',display:'flex',flexDirection:'column',gap:12}}>
       ${hist.length===0?html`<div class=glass style=${{padding:20,textAlign:'center'}}><span class=mono style=${{color:'var(--t4)'}}>Noch keine Workouts</span></div>`:null}
-      ${hist.map(w=>{const p=PLANS[w.day];return html`<div key=${w.id} class=glass style=${{padding:'16px 18px',display:'flex',alignItems:'center',gap:16}}>
+      ${hist.map(w=>{const p=PLANS[w.day];const isDelTarget=delConfirm===w.id;return html`<div key=${w.id} class=glass style=${{padding:'16px 18px',display:'flex',alignItems:'center',gap:16,borderColor:isDelTarget?'var(--dngB)':'rgba(255,255,255,0.1)',transition:'border-color .2s'}}>
         <div style=${{width:48,height:48,background:'var(--bg2)',borderRadius:'var(--rs)',display:'flex',alignItems:'center',justifyContent:'center',color:DAY_COLORS[w.day]||'var(--acc)',flexShrink:0}}>
           ${DAY_ICONS[w.day]||''}
         </div>
         <div style=${{flex:1}}>
           <div style=${{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
             <span style=${{fontSize:17,fontWeight:700}}>${planLabel(w)||'Workout'}</span>
-            <span class=mono style=${{fontSize:10,color:'var(--t4)',letterSpacing:1}}>${new Date(w.date).toLocaleDateString('de-DE')}</span>
+            <div style=${{display:'flex',alignItems:'center',gap:8}}>
+              <span class=mono style=${{fontSize:10,color:'var(--t4)',letterSpacing:1}}>${new Date(w.date).toLocaleDateString('de-DE')}</span>
+              <button onClick=${()=>setDelConfirm(isDelTarget?null:w.id)} style=${{background:'none',color:isDelTarget?'var(--dng)':'var(--t5)',padding:4}}>
+                <svg width=16 height=16 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
           </div>
           <div style=${{marginTop:6,display:'flex',gap:16}}>
             <div style=${{display:'flex',alignItems:'center',gap:6}}>
@@ -413,6 +433,11 @@ function App(){
               <span class=mono style=${{fontSize:12,color:'var(--t3)'}}>${w.dur} Min</span>
             </div>
           </div>
+          ${isDelTarget?html`<div style=${{marginTop:10,padding:'10px 0 2px',borderTop:'1px solid rgba(255,255,255,0.05)',display:'flex',alignItems:'center',gap:8}}>
+            <span style=${{fontSize:13,color:'var(--dng)',flex:1}}>Dieses Workout wirklich löschen?</span>
+            <button onClick=${()=>deleteWorkout(w.id)} style=${{background:'var(--dngA)',color:'var(--dng)',borderRadius:'var(--rxs)',padding:'6px 14px',fontSize:12,fontWeight:600}}>Löschen</button>
+            <button onClick=${()=>setDelConfirm(null)} style=${{background:'var(--bg2)',color:'var(--t3)',borderRadius:'var(--rxs)',padding:'6px 14px',fontSize:12,fontWeight:600}}>Abbrechen</button>
+          </div>`:null}
         </div>
       </div>`})}
     </div>
