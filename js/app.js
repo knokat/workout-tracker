@@ -306,19 +306,21 @@ function App(){
   if(scr==='analytics'){
     // Build exercise list from all plans
     const allExercises=[];Object.values(PLANS).forEach(p=>p.ex.forEach(e=>{if(!allExercises.find(x=>x.id===e.id))allExercises.push({id:e.id,n:e.n,day:p.name})}));
-    // Build day filter options
-    const dayFilters=[1,2,3].map(d=>({id:'day:'+d,label:PLANS[d]?.label||('Tag '+d)}));
+    // Build workout-name filter options (unique labels across all workouts)
+    const labelSet=new Set();all.forEach(w=>{const lbl=planLabel(w);if(lbl)labelSet.add(lbl)});
+    const labelFilters=[...labelSet].sort().map(l=>({id:'wn:'+l,label:l}));
 
     let chartData,muscleData;
-    const dayMatch=aFilter.match(/^day:(\d)$/);
+    const wnMatch=aFilter.match(/^wn:(.+)$/);
     if(aFilter==='all'){
       chartData=all.map(w=>({date:w.date,vol:w.vol}));
       const mg={};all.forEach(w=>{const p=PLANS[w.day];if(!p)return;p.ex.forEach(ex=>{const ms=ex.m.split(',').map(m=>m.trim());ms.forEach(m=>{mg[m]=(mg[m]||0)+(w.exs?.[ex.id]?.length||0)})})});
       muscleData=Object.entries(mg).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,value])=>({name,value}));
-    } else if(dayMatch){
-      const dNum=parseInt(dayMatch[1]);
-      chartData=all.filter(w=>w.day===dNum).map(w=>({date:w.date,vol:w.vol}));
-      const mg={};all.filter(w=>w.day===dNum).forEach(w=>{const p=PLANS[w.day];if(!p)return;p.ex.forEach(ex=>{const ms=ex.m.split(',').map(m=>m.trim());ms.forEach(m=>{mg[m]=(mg[m]||0)+(w.exs?.[ex.id]?.length||0)})})});
+    } else if(wnMatch){
+      const wName=wnMatch[1];
+      const wnWs=all.filter(w=>planLabel(w)===wName);
+      chartData=wnWs.map(w=>({date:w.date,vol:w.vol}));
+      const mg={};wnWs.forEach(w=>{const p=PLANS[w.day];if(!p)return;p.ex.forEach(ex=>{const ms=ex.m.split(',').map(m=>m.trim());ms.forEach(m=>{mg[m]=(mg[m]||0)+(w.exs?.[ex.id]?.length||0)})})});
       muscleData=Object.entries(mg).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,value])=>({name,value}));
     } else {
       // Single exercise filter
@@ -331,9 +333,9 @@ function App(){
     }
 
     // Stats — scoped to filter
-    const filteredAll=dayMatch?all.filter(w=>w.day===parseInt(dayMatch[1])):all;
+    const filteredAll=wnMatch?all.filter(w=>planLabel(w)===wnMatch[1]):all;
     const avgDur=filteredAll.length?Math.round(filteredAll.reduce((t,w)=>t+w.dur,0)/filteredAll.length):0;
-    const totalWorkouts=aFilter==='all'?all.length:dayMatch?filteredAll.length:chartData.length;
+    const totalWorkouts=aFilter==='all'?all.length:wnMatch?filteredAll.length:chartData.length;
 
     return html`<div style=${{paddingBottom:90}}>
       <header style=${{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'24px 20px',position:'relative',zIndex:10}}>
@@ -346,7 +348,7 @@ function App(){
         <select value=${aFilter} onChange=${e=>setAFilter(e.target.value)} class=mono style=${{width:'auto',fontSize:12,padding:'8px 12px',borderRadius:'var(--rs)',textAlign:'left'}}>
           <option value="all">All Workouts</option>
           <optgroup label="Workout-Typ">
-            ${dayFilters.map(d=>html`<option key=${d.id} value=${d.id}>${d.label}</option>`)}
+            ${labelFilters.map(d=>html`<option key=${d.id} value=${d.id}>${d.label}</option>`)}
           </optgroup>
           <optgroup label="Einzelne Übung">
             ${allExercises.map(e=>html`<option key=${e.id} value=${e.id}>${e.n}</option>`)}
@@ -370,7 +372,7 @@ function App(){
           </div>
         </div>
 
-        ${aFilter==='all'||dayMatch?html`<div>
+        ${aFilter==='all'||wnMatch?html`<div>
           <div class=label style=${{marginBottom:12}}>Per Exercise</div>
           <div class=mono style=${{fontSize:12,color:'var(--t4)',textAlign:'center',padding:10}}>Wähle eine Übung im Dropdown oben</div>
         </div>`:html`<div>
