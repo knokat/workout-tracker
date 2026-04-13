@@ -450,10 +450,10 @@ export function Calendar({workouts}){
       })}
     </div>
 
-    <div style=${{display:'flex',justifyContent:'center',gap:16,marginTop:14,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.05)'}}>
-      ${[1,2,3].map(d=>html`<div key=${d} style=${{display:'flex',alignItems:'center',gap:6}}>
-        <div style=${{width:10,height:10,borderRadius:3,background:CAL_BG[d]}}></div>
-        <span class=mono style=${{fontSize:11,color:'var(--t5)'}}>Tag ${d}</span>
+    <div style=${{display:'flex',flexDirection:'column',gap:6,marginTop:14,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.05)'}}>
+      ${[1,2,3].map(d=>html`<div key=${d} style=${{display:'flex',alignItems:'center',gap:8}}>
+        <div style=${{width:10,height:10,borderRadius:3,background:CAL_BG[d],flexShrink:0}}></div>
+        <span class=mono style=${{fontSize:11,color:'var(--t5)'}}>Tag ${d}: ${PLANS[d]?.label||''}</span>
       </div>`)}
     </div>
 
