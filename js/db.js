@@ -41,3 +41,13 @@ export async function dbSvAct(uid,day,d,n,a,o,st,wuCk,wCmt){
 export async function dbLdAct(uid){const{data}=await sb.from('active_workouts').select('*').eq('user_id',uid).maybeSingle();return data}
 
 export async function dbDlAct(uid){await sb.from('active_workouts').delete().eq('user_id',uid)}
+
+export async function dbDelWorkout(workoutId){
+  const{data:els}=await sb.from('exercise_logs').select('id').eq('workout_id',workoutId);
+  if(els&&els.length){
+    const elIds=els.map(e=>e.id);
+    await sb.from('set_logs').delete().in('exercise_log_id',elIds);
+    await sb.from('exercise_logs').delete().eq('workout_id',workoutId);
+  }
+  await sb.from('workouts').delete().eq('id',workoutId);
+}
