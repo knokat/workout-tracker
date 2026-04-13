@@ -4,7 +4,7 @@ import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm
 import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V3_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
 import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct } from './db.js';
-import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart } from './components.js';
+import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart, Calendar } from './components.js';
 
 /* ── Day Icons (SVG) ── */
 const DAY_ICONS={
@@ -417,6 +417,25 @@ function App(){
       </div>`})}
     </div>
     <${BottomNav} active="history" onNav=${navTo}/>
+  </div>`}
+
+  /* ══════════════════════════════════════════════
+     CALENDAR SCREEN
+     ══════════════════════════════════════════════ */
+  if(scr==='calendar'){return html`<div style=${{paddingBottom:90}}>
+    <header style=${{display:'flex',alignItems:'center',gap:14,padding:'24px 20px'}}>
+      <button onClick=${()=>navTo('home')} style=${{background:'none',color:'var(--t4)',padding:4}}>
+        <svg width=20 height=20 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=2><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+      </button>
+      <h1 style=${{fontSize:24,fontWeight:700}}>Kalender</h1>
+    </header>
+
+    <div style=${{padding:'0 20px'}}>
+      <div class=glass style=${{padding:'16px 12px'}}>
+        <${Calendar} workouts=${all}/>
+      </div>
+    </div>
+    <${BottomNav} active="calendar" onNav=${navTo}/>
   </div>`}
 
   /* ══════════════════════════════════════════════
