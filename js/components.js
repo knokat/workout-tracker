@@ -235,61 +235,62 @@ export function WUT({items}){
 }
 
 /* ── FC: Fun Card (Canvas) ── */
-export function FC({w,vol,prev,dur,cmt}){
+export function FC({w,vol,prev,bwReps,bwDiff,dur,cmt}){
   const ref=useRef(null);const[comps]=useState(()=>rndC(vol));const p=PLANS[w.day];
-  const diff=prev?vol-prev:null,pct=prev?((diff/prev)*100).toFixed(0):null;
+  const diff=prev!=null?vol-prev:null,pct=prev!=null?((diff/prev)*100).toFixed(0):null;
   const hasCmt=cmt&&cmt.trim().length>0;
+  const hasBw=bwReps>0;
   const itemCount=comps.items.length;
   useEffect(()=>{
     const c=ref.current;if(!c)return;const ctx=c.getContext('2d');
     const W=400;
-    // Dynamic height: base + items + equals + progression + comment + footer
     const itemsH=itemCount*35;
     const equalsH=30;
     const progH=diff!==null?45:0;
+    const bwH=hasBw?38:0;
     const cmtH=hasCmt?40:0;
-    const H=175+itemsH+equalsH+progH+cmtH+45;
+    const H=175+itemsH+equalsH+progH+bwH+cmtH+45;
     c.width=W*2;c.height=H*2;c.style.width=W+'px';c.style.height=H+'px';ctx.scale(2,2);
-    // Background
     ctx.fillStyle='#0A0A0B';ctx.fillRect(0,0,W,H);
-    // Subtle glows
     ctx.globalAlpha=.06;ctx.fillStyle='#10B981';ctx.beginPath();ctx.arc(340,70,110,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#3B82F6';ctx.beginPath();ctx.arc(60,H-60,70,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-    // Title
     ctx.fillStyle='#fff';ctx.font='bold 20px Inter,system-ui';ctx.textAlign='center';ctx.fillText(p.icon+' KATJAS WORKOUT',W/2,38);
     ctx.font='15px Inter,system-ui';ctx.fillStyle='#10B981';ctx.fillText(p.name+': '+p.label,W/2,60);
-    // Divider
-    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(30,75);ctx.lineTo(W-30,75);ctx.stroke();
+    // Date
+    ctx.font='11px Inter,system-ui';ctx.fillStyle='#475569';ctx.fillText(new Date(w.date).toLocaleDateString('de-DE')+(dur?' · '+Math.round(dur)+' Min':''),W/2,76);
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(30,86);ctx.lineTo(W-30,86);ctx.stroke();
     // Volume
-    ctx.font='bold 40px Inter,system-ui';ctx.fillStyle='#fff';ctx.fillText(vol.toLocaleString('de-DE')+' kg',W/2,120);
-    ctx.font='13px Inter,system-ui';ctx.fillStyle='#94A3B8';ctx.fillText('Gesamtvolumen bewegt',W/2,142);
-    // Comparisons header
-    ctx.fillStyle='#64748B';ctx.fillText('Das entspricht ungefähr...',W/2,174);
-    // Comparison items with + signs
-    let curY=200;
+    ctx.font='bold 40px Inter,system-ui';ctx.fillStyle='#fff';ctx.fillText(vol.toLocaleString('de-DE')+' kg',W/2,128);
+    ctx.font='12px Inter,system-ui';ctx.fillStyle='#94A3B8';ctx.fillText('Gesamtvolumen bewegt',W/2,148);
+    let curY=168;
+    // Volume progression
+    if(diff!==null){ctx.font='bold 14px Inter,system-ui';ctx.fillStyle=diff>=0?'#10B981':'#EF4444';ctx.fillText((diff>=0?'↗ ':' ↘ ')+(diff>=0?'+':'')+diff.toLocaleString('de-DE')+' kg ('+(diff>=0?'+':'')+pct+'%) vs. letztes Mal',W/2,curY);curY+=22;}
+    // BW Reps
+    if(hasBw){
+      ctx.font='bold 14px Inter,system-ui';ctx.fillStyle='#fff';
+      const bwLine=bwReps+' Reps Bodyweight Exercises'+(bwDiff!=null?' '+(bwDiff>=0?'↗ +':'↘ ')+bwDiff+' Reps':'');
+      ctx.fillStyle=bwDiff!=null&&bwDiff>=0?'#10B981':bwDiff!=null?'#EF4444':'#94A3B8';
+      ctx.fillText(bwLine,W/2,curY);curY+=22;
+    }
+    curY+=8;
+    ctx.fillStyle='#64748B';ctx.font='13px Inter,system-ui';ctx.fillText('Das entspricht ungefähr...',W/2,curY);curY+=26;
     comps.items.forEach((co,i)=>{
       ctx.textAlign='left';
-      // + sign (not on first item)
-      if(i>0){ctx.font='bold 16px Inter,system-ui';ctx.fillStyle='var(--t5)';ctx.fillStyle='#64748B';ctx.fillText('+',35,curY+1)}
+      if(i>0){ctx.font='bold 16px Inter,system-ui';ctx.fillStyle='#64748B';ctx.fillText('+',35,curY+1)}
       ctx.font='22px system-ui';ctx.fillText(co.e,55,curY+5);
       ctx.font='bold 15px Inter,system-ui';ctx.fillStyle='#fff';
       const aStr=typeof co.a==='number'?co.a.toLocaleString('de-DE'):parseFloat(co.a).toLocaleString('de-DE');
       ctx.fillText(aStr,95,curY+1);
       const aW=ctx.measureText(aStr).width;
       ctx.font='13px Inter,system-ui';ctx.fillStyle='#94A3B8';ctx.fillText(co.n,95+aW+8,curY+1);
-      ctx.fillStyle='#fff';
       curY+=35;
     });
-    // Equals line
     curY+=5;
     ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.beginPath();ctx.moveTo(55,curY);ctx.lineTo(W-55,curY);ctx.stroke();
     curY+=20;
     ctx.textAlign='center';ctx.font='bold 16px Inter,system-ui';ctx.fillStyle='#10B981';
     ctx.fillText('= '+vol.toLocaleString('de-DE')+' kg',W/2,curY);
     curY+=25;
-    // Progression
-    if(diff!==null){ctx.font='bold 15px Inter,system-ui';ctx.fillStyle=diff>=0?'#10B981':'#EF4444';ctx.fillText((diff>=0?'↗️':'↘️')+' '+(diff>=0?'+':'')+diff.toLocaleString('de-DE')+' kg ('+(diff>=0?'+':'')+pct+'%)',W/2,curY);ctx.font='11px Inter,system-ui';ctx.fillStyle='#64748B';ctx.fillText('vs. letztes Mal',W/2,curY+18);curY+=45}
-    // Comment
     if(hasCmt){ctx.font='italic 13px Inter,system-ui';ctx.fillStyle='#94A3B8';ctx.textAlign='center';
       const words=cmt.trim().split(' ');let line='';let lines=[];
       for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>340&&line){lines.push(line);line=word}else line=test}
@@ -297,11 +298,9 @@ export function FC({w,vol,prev,dur,cmt}){
       lines.slice(0,2).forEach((l,i)=>ctx.fillText(l,W/2,curY+i*18));
       curY+=lines.length*18+10;
     }
-    // Footer
-    ctx.textAlign='center';ctx.font='11px Inter,system-ui';ctx.fillStyle='#475569';ctx.fillText(new Date(w.date).toLocaleDateString('de-DE')+(dur?' · '+Math.round(dur)+' Min':'')+' · #NeverSkipLegDay',W/2,H-20);
-    // Border
+    ctx.textAlign='center';ctx.font='11px Inter,system-ui';ctx.fillStyle='#475569';ctx.fillText('#NeverSkipLegDay',W/2,H-20);
     ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.strokeRect(8,8,W-16,H-16);
-  },[vol,comps,cmt]);
+  },[vol,comps,cmt,bwReps,bwDiff]);
   const save=()=>{const c=ref.current;const a=document.createElement('a');a.download='workout-'+new Date().toISOString().slice(0,10)+'.png';a.href=c.toDataURL('image/png');a.click()};
   return html`<div style=${{textAlign:'center'}}>
     <canvas ref=${ref} style=${{borderRadius:12,maxWidth:'100%'}}/>
