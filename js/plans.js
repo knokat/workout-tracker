@@ -13,7 +13,7 @@ export const BANDS=[
 // Plan version cutoff: workouts before this date used a different plan structure
 // Used to show correct labels and compare only within same plan version
 export const PLAN_V2_DATE='2026-04-01'; // v2 starts April 2026
-export const PLAN_V3_DATE='2026-04-06'; // v3 starts 6 April 2026
+export const PLAN_V4_DATE='2026-04-14'; // v4 starts 14 April 2026
 export const PLAN_V1_LABELS={1:"Lower Body",2:"Upper Body",3:"Full Body"};
 export const PLAN_V2_LABELS={1:"Hinge + Pull",2:"Squat + Push",3:"Heavy Compounds"};
 
@@ -29,12 +29,12 @@ wu:[
   {id:"w8",n:"Calf Stretch (Ankle Mobility)",r:"5×5s/S",nt:"Fuß auf Bank/Stuhl, Knie über Zehen drücken, Ferse am Boden",demo:"yt:5alpa1IikQM?si=i02H-V3NWk1yS6zL&t=428"},
 ],
 ex:[
-  {id:"rdl",n:"❤️ RDL (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Liebling! Superset mit Cable Row",u:0},
-  {id:"cable-row",n:"Cable Row",s:3,rp:"8-10",tp:"3-0-1-2",rs:90,m:"Ob. Rücken, Lats",w:"Horiz. Pull",u:0,h:"Grip: Wo1 Pronated→Wo2 Neutral→Wo3 Supinated"},
+  {id:"rdl",n:"❤️ RDL (LH)",s:3,rp:"6-8",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Liebling! Superset mit Cable Row",u:0},
+  {id:"cable-row",n:"Cable Row",s:3,rp:"8-12",tp:"3-0-1-2",rs:90,m:"Ob. Rücken, Lats",w:"Horiz. Pull",u:0,h:"Grip: Wo1 Pronated→Wo2 Neutral→Wo3 Supinated"},
   {id:"sl-hip-thrust",n:"SL Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Glutes",w:"Physio – 1x/Wo unilateral. Superset mit Lat Pulldown",u:1},
-  {id:"lat-pulldown",n:"Lat Pulldown (Neutral Grip)",s:3,rp:"8-10",tp:"2-0-1-0",rs:75,m:"Lats, Bizeps",w:"Klimmzug-Kraftaufbau",u:0},
+  {id:"lat-pulldown",n:"Lat Pulldown (Neutral Grip)",s:3,rp:"8-12",tp:"2-0-1-0",rs:75,m:"Lats, Bizeps",w:"Klimmzug-Kraftaufbau",u:0},
   {id:"sb-leg-curl",n:"Swiss Ball Leg Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Kniestabilität",w:"Superset mit Bizeps Curls",u:0},
-  {id:"bicep-curl",n:"❤️ Bizeps Curls",s:3,rp:"12",tp:"2-1-1-0",rs:60,m:"Bizeps",w:"Liebling! Armästhetik",u:0},
+  {id:"bicep-curl",n:"❤️ Bizeps Curls",s:3,rp:"8-10",tp:"2-1-1-0",rs:60,m:"Bizeps",w:"Liebling! Armästhetik",u:0},
   {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Superset mit Lateral Raises",u:1},
   {id:"db-lat-raise",n:"⭐ Lateral Raises",s:2,rp:"12-15",tp:"2-0-1-0",rs:60,m:"Seitl. Schulter",w:"Optional – Schulter-Maintenance",u:0,opt:1},
   {id:"copenhagen-plank",n:"Copenhagen Plank",s:2,rp:"—",tp:"iso",rs:60,m:"Adduktoren, Core",w:"Optional – Hüftstabilität",u:1,iso:1,iS:30,opt:1}
@@ -50,11 +50,11 @@ ex:[
   {id:"w8",n:"Band Pull Aparts",r:"10"},
   {id:"w9",n:"Calf Stretch (Ankle Mobility)",r:"5×5s/S",nt:"Fuß auf Bank/Stuhl, Knie über Zehen drücken, Ferse am Boden",demo:"yt:5alpa1IikQM?si=i02H-V3NWk1yS6zL&t=428"}],
 ex:[
-  {id:"deep-box-split-squat",n:"Deep Box Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:0,ss:1,m:"Quads (Vastus Medialis), Glutes",w:"Physio: Stepper, Gewicht auf vorderem Fuß, Sprunggelenk 90°, nur bis Knie 90° hoch. Superset mit OHP",u:1,h:"Langer Femur: Heel Elevation, Goblet- oder Front-Squat-Variante ausprobieren"},
-  {id:"db-ohp",n:"DB Overhead Press",s:3,rp:"8-10",tp:"2-0-1-0",rs:75,m:"Schultern, Trizeps",w:"Compound Push",u:0},
-  {id:"banded-box-squat",n:"Banded Box Squat (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Physio – Langhantel + Band um Knie. Superset mit Tri Pushdown",u:0,h:"Langer Femur: Heel Elevation, breiterer Stand, Goblet-Variante testen"},
-  {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"",u:0},
-  {id:"sl-rdl",n:"SL RDL",s:3,rp:"10",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes, Hüftstabilität",w:"Bei linkem Standbein etwas nach rechts eindrehen. Superset mit SL Calf Raise",u:1},
+  {id:"split-squat",n:"Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:0,ss:1,m:"Quads (Vastus Medialis), Glutes",w:"Physio: Gewicht auf vorderem Fuß, Vastus Medialis Fokus, 4-sek Exzentrik. Superset mit OHP. ⏩ Ziel: 6-8 wenn Technik sitzt → dann Deep Box Split Squat",u:1,h:"Langer Femur: Heel Elevation hilft"},
+  {id:"db-ohp",n:"DB Overhead Press",s:3,rp:"12-15",tp:"2-0-1-0",rs:75,m:"Schultern, Trizeps",w:"Höhere Reps / leichteres Gewicht – ZNS-Erholung nach Split Squat",u:0},
+  {id:"banded-barbell-back-squat",n:"Banded Barbell Back Squat",s:3,rp:"6-8",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Physio – Langhantel + Band um Knie. ⚠️ Nicht zu tief – Spiegel nutzen, Knie beobachten. Superset mit Tri Pushdown",u:0,h:"Langer Femur: Heel Elevation, breiterer Stand"},
+  {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"12-15",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"Höhere Reps / leichteres Gewicht – ZNS-Erholung nach Banded Squat",u:0},
+  {id:"sl-rdl",n:"SL RDL",s:3,rp:"10",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes, Hüftstabilität",w:"Bei linkem Standbein etwas nach rechts eindrehen. ⚠️ Rechts: erst Glutes aktivieren, dann runter – nicht zu tief, schnell hoch. Mehr Reps / weniger Gewicht bis Technik sitzt. Barbell als Stabilisierungshilfe testen. Superset mit SL Calf Raise",u:1},
   {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:60,m:"Gastrocnemius",w:"",u:1}
 ]},
 3:{name:"Tag 3",label:"Heavy Compounds + Rehab",icon:"🏋️",loc:"Gym (FitInn)",wu:[
@@ -71,10 +71,11 @@ ex:[
   {id:"pull-up-mach",n:"❤️ Klimmzug-Progr.",s:4,rp:"6-8",tp:"1-0-1-0",rs:90,m:"Lats, Bizeps, Core",w:"Maschine-Assisted",u:0,ast:1,g:"MULTI 7"},
   {id:"cable-hip-abd",n:"Cable Hip Abduction",s:5,rp:"12-15",tp:"1-1-1-0",rs:0,ss:1,m:"Glute Med/Min",w:"Physio: Kapazität. Hüfte aufrichten, Ferse zuerst, eher Schlittschuh. Superset mit Adduction",u:1,g:"MULTI 1 🏷️"},
   {id:"cable-hip-add",n:"Cable Hip Adduction",s:5,rp:"12-15",tp:"1-1-1-0",rs:30,m:"Adduktoren",w:"Physio: Kapazität. Hüfte aufrichten, Ferse zuerst, eher Schlittschuh",u:1,g:"MULTI 1 🏷️",demo:"vimeo:832809720"},
-  {id:"cable-bicep",n:"❤️ Cable Biceps Curl",s:3,rp:"10-12",tp:"2-1-1-0",rs:30,m:"Bizeps",w:"Liebling!",u:1,g:"MULTI 1 🏷️"},
+  {id:"cable-bicep",n:"❤️ Cable Biceps Curl",s:3,rp:"8-10",tp:"2-1-1-0",rs:30,m:"Bizeps",w:"Liebling!",u:1,g:"MULTI 1 🏷️"},
   {id:"butterfly",n:"Butterfly",s:2,rp:"10-12",tp:"2-0-1-0",rs:60,m:"Brust",w:"Optional – Brust-Maintenance",u:0,opt:1,g:"BRUST 3B 🏷️"},
   {id:"sl-leg-ext",n:"SL Leg Extension",s:2,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Knie-Rehab! Physio: am Ende!",u:1,g:"BEINE 1A 🏷️"},
-  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"",u:1,g:"BEINE 4D"}
+  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:30,m:"Gastrocnemius",w:"",u:1,g:"BEINE 4D"},
+  {id:"quad-machine",n:"⭐ Quad-Maschine",s:2,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Quads",w:"Optional – Quad-Aufbau. Ausprobieren welche kniefreundlich ist: Beinpresse (BEINE 3A), 45° Beinpresse (BEINE 3D), Kniebeugenmaschine (BEINE 5A), Hack Squat / Smith Machine",u:0,opt:1}
 ]}};
 
 // Legacy ID mapping: old positional IDs → new stable IDs
@@ -83,7 +84,9 @@ export const LEGACY_ID_MAP={
   // Tag 1 old IDs (pre-stable)
   '1:e1':'rdl','1:e2':'hip-thrust','1:e3':'bw-squat','1:e4':'sb-leg-curl',
   '1:e5':'tempo-split-squat','1:e6':'standing-hip-flex','1:e7':'sl-calf-raise','1:e8':'copenhagen-plank',
-  // Tag 2 old IDs
+  // Tag 2 v3→v4 renames
+  '2:deep-box-split-squat':'split-squat',
+  '2:banded-box-squat':'banded-barbell-back-squat',
   '2:e1':'pull-up-band','2:e2':'inverted-row','2:e3':'db-ohp','2:e4':'db-lat-raise',
   '2:e5':'db-hammer','2:e6':'db-tri-ext','2:e7':'serratus-raise','2:e8':'bar-hang',
   // Tag 3 old IDs (pre-reorder)
