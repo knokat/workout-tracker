@@ -244,59 +244,75 @@ function App(){
   /* ══════════════════════════════════════════════
      SUMMARY SCREEN
      ══════════════════════════════════════════════ */
-  if(scr==='summary'&&curW){const plan=PLANS[curW.day];const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id&&w.date>=PLAN_V3_DATE).slice(-1)[0];const pv=prev?.vol||0;
+  if(scr==='summary'&&curW){const plan=PLANS[curW.day];
+    // Fix: find previous workout of same day, sorted by date desc, skip current
+    const prev=all.filter(w=>w.day===curW.day&&w.id!==curW.id).sort((a,b)=>b.date>a.date?1:-1)[0];
+    const pv=prev&&prev.vol>0?prev.vol:null;
     const durH=Math.floor(curW.dur/60),durM=curW.dur%60;const durStr=durH>0?durH+'h '+durM+' Min':curW.dur+' Min';
-    const progs=[],regs=[];if(prev?.exs){plan.ex.forEach(ex=>{const cur=curW.exs?.[ex.id],old=prev.exs?.[ex.id];if(!cur||!old)return;
-      const cMax=Math.max(...cur.filter(s=>!s.isW).map(s=>parseFloat(s.kg||s.kR||0)||0));
-      const oMax=Math.max(...old.filter(s=>!s.isW).map(s=>parseFloat(s.kg||s.kR||0)||0));
-      const cReps=Math.max(...cur.filter(s=>!s.isW).map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
-      const oReps=Math.max(...old.filter(s=>!s.isW).map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
-      if(cMax>oMax)progs.push({n:ex.n,t:'kg',v:cMax-oMax});
-      else if(cMax===oMax&&cReps>oReps)progs.push({n:ex.n,t:'reps',v:cReps-oReps});
-      else if(cMax<oMax)regs.push({n:ex.n,t:'kg',v:oMax-cMax});
-      else if(cMax===oMax&&cReps<oReps)regs.push({n:ex.n,t:'reps',v:oReps-cReps});
+    const volDiff=pv!=null?curW.vol-pv:null;const volPct=pv!=null?((volDiff/pv)*100).toFixed(0):null;
+    // Exercise progressions – weighted and bodyweight separately
+    const progs=[],regs=[];
+    // BW reps: sum all reps across sets for noKg exercises
+    const bwExIds=plan.ex.filter(e=>e.noKg||e.iso).map(e=>e.id);
+    const curBwReps=bwExIds.reduce((sum,id)=>{const sets=curW.exs?.[id];if(!sets)return sum;return sum+sets.filter(s=>!s.isW).reduce((s2,s)=>s2+(parseInt(s.reps||s.rR||s.secs||s.sR||0)||0),0)},0);
+    const prevBwReps=pv!=null?bwExIds.reduce((sum,id)=>{const sets=prev.exs?.[id];if(!sets)return sum;return sum+sets.filter(s=>!s.isW).reduce((s2,s)=>s2+(parseInt(s.reps||s.rR||s.secs||s.sR||0)||0),0)},0):null;
+    const bwDiff=prevBwReps!=null?curBwReps-prevBwReps:null;
+    if(prev?.exs){plan.ex.forEach(ex=>{
+      if(ex.noKg||ex.iso)return;// BW handled separately
+      const cur=curW.exs?.[ex.id],old=prev.exs?.[ex.id];if(!cur||!old)return;
+      const cSets=cur.filter(s=>!s.isW),oSets=old.filter(s=>!s.isW);
+      if(!cSets.length||!oSets.length)return;
+      const cMax=Math.max(...cSets.map(s=>parseFloat(s.kg||s.kR||0)||0));
+      const oMax=Math.max(...oSets.map(s=>parseFloat(s.kg||s.kR||0)||0));
+      const cReps=Math.max(...cSets.map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
+      const oReps=Math.max(...oSets.map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
+      const cleanN=ex.n.replace(/^[❤️⭐\s]+/u,'');
+      if(cMax>oMax)progs.push({n:cleanN,t:'kg',v:+(cMax-oMax).toFixed(1)});
+      else if(cMax===oMax&&cReps>oReps)progs.push({n:cleanN,t:'reps',v:cReps-oReps});
+      else if(cMax<oMax)regs.push({n:cleanN,t:'kg',v:+(oMax-cMax).toFixed(1)});
+      else if(cMax===oMax&&cReps<oReps)regs.push({n:cleanN,t:'reps',v:oReps-cReps});
     })}
     return html`<div style=${{padding:'32px 20px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',minHeight:'100dvh'}}>
-      <div style=${{marginBottom:28}}>
+      <div style=${{marginBottom:24}}>
         <div style=${{display:'inline-flex',padding:16,background:'var(--accA)',border:'1px solid var(--accB)',borderRadius:24,marginBottom:20}}>
           <svg width=48 height=48 viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width=2><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.5 4 6.5 2 2 3 3.5 3 5.5a6 6 0 1 1-12 0c0-2.345 1.5-4.5 3-6.5-.5 2.5 0 4.5 1.5 6.5Z"/></svg>
         </div>
-        <h1 style=${{fontSize:28,fontWeight:700,letterSpacing:'-1.5px',marginBottom:6}}>WORKOUT COMPLETE</h1>
-        <p class=mono style=${{fontSize:12,color:'var(--acc)',textTransform:'uppercase',letterSpacing:2}}>${plan.name}: ${plan.label}</p>
+        <h1 style=${{fontSize:28,fontWeight:700,letterSpacing:'-1.5px',marginBottom:4}}>WORKOUT COMPLETE</h1>
+        <p class=mono style=${{fontSize:11,color:'var(--acc)',textTransform:'uppercase',letterSpacing:2}}>${plan.name}: ${plan.label}</p>
+        <p class=mono style=${{fontSize:10,color:'var(--t5)',marginTop:4}}>${new Date(curW.date).toLocaleDateString('de-DE')} · ${durStr}</p>
       </div>
 
-      <div style=${{marginBottom:32}}>
-        <p style=${{fontSize:56,fontWeight:700,letterSpacing:'-2px',lineHeight:1,marginBottom:6}}>${curW.vol.toLocaleString('de-DE')} kg</p>
-        <p class=mono style=${{fontSize:11,color:'var(--t4)',textTransform:'uppercase',letterSpacing:2}}>Total Volume Moved</p>
-        ${pv>0?html`<div class=mono style=${{fontSize:16,fontWeight:700,marginTop:10,color:curW.vol>=pv?'var(--acc)':'var(--dng)'}}>${curW.vol>=pv?'↗️':'↘️'} ${curW.vol>=pv?'+':''}${(curW.vol-pv).toLocaleString('de-DE')} kg (${((curW.vol-pv)/pv*100).toFixed(0)}%)</div>`:null}
+      <div class=glass style=${{width:'100%',padding:'20px',marginBottom:16,textAlign:'center'}}>
+        <p style=${{fontSize:48,fontWeight:700,letterSpacing:'-2px',lineHeight:1,marginBottom:4}}>${curW.vol.toLocaleString('de-DE')} kg</p>
+        <p class=mono style=${{fontSize:10,color:'var(--t4)',textTransform:'uppercase',letterSpacing:2,marginBottom:volDiff!=null?8:0}}>Gesamtvolumen bewegt</p>
+        ${volDiff!=null?html`<div class=mono style=${{fontSize:15,fontWeight:700,color:volDiff>=0?'var(--acc)':'var(--dng)'}}>${volDiff>=0?'↗️':'↘️'} ${volDiff>=0?'+':''}${volDiff.toLocaleString('de-DE')} kg (${volDiff>=0?'+':''}${volPct}%) vs. letztes Mal</div>`:null}
       </div>
 
-      ${progs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:20,textAlign:'left'}}>
-        <div style=${{fontSize:14,fontWeight:700,color:'var(--acc)',marginBottom:8}}>💪 Gesteigert bei ${progs.length} Übung${progs.length>1?'en':''}!</div>
+      ${curBwReps>0?html`<div class=glass style=${{width:'100%',padding:'16px 20px',marginBottom:16,textAlign:'center'}}>
+        <p style=${{fontSize:32,fontWeight:700,letterSpacing:'-1px',lineHeight:1,marginBottom:4}}>${curBwReps} Reps</p>
+        <p class=mono style=${{fontSize:10,color:'var(--t4)',textTransform:'uppercase',letterSpacing:2,marginBottom:bwDiff!=null?6:0}}>Bodyweight Exercises</p>
+        ${bwDiff!=null?html`<div class=mono style=${{fontSize:14,fontWeight:700,color:bwDiff>=0?'var(--acc)':'var(--dng)'}}>${bwDiff>=0?'↗️':'↘️'} ${bwDiff>=0?'+':''}${bwDiff} Reps vs. letztes Mal</div>`:null}
+      </div>`:null}
+
+      ${progs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:12,textAlign:'left'}}>
+        <div style=${{fontSize:13,fontWeight:700,color:'var(--acc)',marginBottom:8}}>💪 Gesteigert bei ${progs.length} Übung${progs.length>1?'en':''}!</div>
         ${progs.map(p=>html`<div style=${{fontSize:13,color:'var(--t2)',padding:'3px 0'}}>↗️ ${p.n}: +${p.v} ${p.t}</div>`)}
       </div>`:null}
 
-      ${regs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:20,textAlign:'left',borderColor:'var(--dngB)'}}>
-        <div style=${{fontSize:14,fontWeight:700,color:'var(--dng)',marginBottom:8}}>📉 Weniger bei ${regs.length} Übung${regs.length>1?'en':''}:</div>
+      ${regs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:12,textAlign:'left',borderColor:'var(--dngB)'}}>
+        <div style=${{fontSize:13,fontWeight:700,color:'var(--dng)',marginBottom:8}}>📉 Weniger bei ${regs.length} Übung${regs.length>1?'en':''}:</div>
         ${regs.map(r=>html`<div style=${{fontSize:13,color:'var(--t3)',padding:'3px 0'}}>↘️ ${r.n}: −${r.v} ${r.t}</div>`)}
       </div>`:null}
 
-      ${curW.cmt?html`<div class=glass style=${{width:'100%',padding:'14px 18px',marginBottom:20,textAlign:'left'}}>
+      ${curW.cmt?html`<div class=glass style=${{width:'100%',padding:'14px 18px',marginBottom:12,textAlign:'left'}}>
         <div style=${{fontSize:13,color:'var(--t3)',fontStyle:'italic'}}>💬 ${curW.cmt}</div>
       </div>`:null}
 
-      <div style=${{width:'100%',marginBottom:28}}><${FC} w=${curW} vol=${curW.vol} prev=${pv} dur=${curW.dur} cmt=${curW.cmt}/></div>
+      <div style=${{width:'100%',marginBottom:24}}><${FC} w=${curW} vol=${curW.vol} prev=${pv} bwReps=${curBwReps} bwDiff=${bwDiff} dur=${curW.dur} cmt=${curW.cmt}/></div>
 
       <div style=${{width:'100%',display:'flex',gap:10}}>
         <button onClick=${()=>{setScr('workout')}} class=glass style=${{color:'var(--wrn)',padding:'16px',fontSize:16,fontWeight:700,flex:1}}>← Korrigieren</button>
         <button onClick=${()=>{setScr('home');setDay(null)}} style=${{background:'var(--acc)',color:'var(--accD)',borderRadius:'var(--r)',padding:'16px',fontSize:16,fontWeight:700,flex:2}}>Back to Dashboard</button>
-      </div>
-      <div style=${{display:'flex',justifyContent:'center',gap:12,marginTop:20}} class=mono>
-        <span style=${{fontSize:10,color:'var(--t5)'}}>${new Date(curW.date).toLocaleDateString('de-DE')}</span>
-        <span style=${{fontSize:10,color:'var(--t5)'}}>·</span>
-        <span style=${{fontSize:10,color:'var(--t5)'}}>${durStr}</span>
-        <span style=${{fontSize:10,color:'var(--t5)'}}>·</span>
-        <span style=${{fontSize:10,color:'rgba(16,185,129,0.5)'}}>#NeverSkipLegDay</span>
       </div>
     </div>`}
 
