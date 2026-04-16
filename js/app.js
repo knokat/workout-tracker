@@ -1,7 +1,7 @@
 // app.js – Hauptkomponente, Auth, Screens, State (Redesign v2)
 
 import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
-import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V3_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS } from './plans.js';
+import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V4_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
 import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct, dbDelWorkout } from './db.js';
 import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart, Calendar } from './components.js';
@@ -38,9 +38,9 @@ function App(){
   const start=d=>{const p=PLANS[d];const dd={};p.ex.forEach(e=>{dd[e.id]=iSets(e)});setWd(dd);setNts({});setAst({});setOptE({});setWuCk({});setWCmt('');setDay(d);setStT(Date.now());setScr('workout');setHasA(false)};
   const resume=()=>{if(!actR)return;const d=actR.data;setDay(actR.day);setWd(d.d||{});setNts(d.n||{});setAst(d.a||{});setOptE(d.o||{});setWuCk(d.wuCk||{});setWCmt(d.wCmt||'');setStT(d.st||Date.now());setScr('workout');setHasA(false)};
   const discard=async()=>{if(user)await dbDlAct(user.id);setHasA(false);setActR(null)};
-  const gL=d=>[...all].reverse().find(w=>w.day===d&&w.date>=PLAN_V3_DATE);
-  const gLold=d=>[...all].reverse().find(w=>w.day===d&&w.date<PLAN_V3_DATE);
-  const planLabel=(w)=>w.date<PLAN_V2_DATE?(PLAN_V1_LABELS[w.day]||PLANS[w.day]?.label):w.date<PLAN_V3_DATE?(PLAN_V2_LABELS[w.day]||PLANS[w.day]?.label):PLANS[w.day]?.label;
+  const gL=d=>[...all].reverse().find(w=>w.day===d&&w.date>=PLAN_V4_DATE);
+  const gLold=d=>[...all].reverse().find(w=>w.day===d&&w.date<PLAN_V4_DATE);
+  const planLabel=(w)=>w.date<PLAN_V2_DATE?(PLAN_V1_LABELS[w.day]||PLANS[w.day]?.label):w.date<PLAN_V4_DATE?(PLAN_V2_LABELS[w.day]||PLANS[w.day]?.label):PLANS[w.day]?.label;
 
   // Resolve legacy ID: given a stable exercise ID and a workout's day, find the old e1/e2/etc ID
   const getLegacyId=(stableId,wDay)=>{
