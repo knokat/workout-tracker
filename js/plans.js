@@ -51,13 +51,13 @@ ex:[
   {id:"w8",n:"Band Pull Aparts",r:"10"},
   {id:"w9",n:"Calf Stretch (Ankle Mobility)",r:"5×5s/S",nt:"Fuß auf Bank/Stuhl, Knie über Zehen drücken, Ferse am Boden",demo:"yt:5alpa1IikQM?si=i02H-V3NWk1yS6zL&t=428"}],
 ex:[
-  {id:"split-squat",n:"Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:0,ss:1,m:"Quads (Vastus Medialis), Glutes",w:"Physio: Gewicht auf vorderem Fuß, Vastus Medialis Fokus, 4-sek Exzentrik. Superset mit OHP. ⏩ Ziel: 6-8 wenn Technik sitzt → dann Deep Box Split Squat",u:1,h:"Langer Femur: Heel Elevation hilft"},
-  {id:"db-ohp",n:"DB Overhead Press",s:3,rp:"12-15",tp:"2-0-1-0",rs:75,m:"Schultern, Trizeps",w:"Höhere Reps / leichteres Gewicht – ZNS-Erholung nach Split Squat",u:0},
-  {id:"banded-barbell-back-squat",n:"Banded Barbell Back Squat",s:3,rp:"6-8",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Physio – Langhantel + Band um Knie. ⚠️ Nicht zu tief – Spiegel nutzen, Knie beobachten. Superset mit Tri Pushdown",u:0,h:"Langer Femur: Heel Elevation, breiterer Stand"},
-  {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"12-15",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"Höhere Reps / leichteres Gewicht – ZNS-Erholung nach Banded Squat",u:0},
-  {id:"sl-rdl",n:"SL RDL",s:3,rp:"10",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes, Hüftstabilität",w:"Bei linkem Standbein etwas nach rechts eindrehen. ⚠️ Rechts: erst Glutes aktivieren, dann runter – nicht zu tief, schnell hoch. Mehr Reps / weniger Gewicht bis Technik sitzt. Barbell als Stabilisierungshilfe testen. Superset mit SL Calf Raise",u:1},
-  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Superset mit Lateral Raises",u:1},
-  {id:"db-lat-raise",n:"Lateral Raises",s:3,rp:"12-15",tp:"2-0-1-0",rs:60,m:"Seitl. Schulter",w:"Schulter-Kappe (mittlerer Delt)",u:0}
+  {id:"split-squat",n:"Split Squat",s:5,rp:"8-10",tp:"4-1-1-0",rs:0,ss:1,m:"Quads (Vastus Medialis), Glutes",w:"Set 1–3 SS mit Tri Pushdown, Set 4–5 SS mit Calf Raise. ⏩ Ziel: 6-8 wenn Technik sitzt → dann Deep Box Split Squat",u:1,h:"① Hinterer Fuß breiter nach außen (nicht in line)\n② Oberkörper aufrecht\n③ Vorderes Knie nach außen drücken (anti-Valgus)\n④ Heel Elevation vorne bei Bedarf\n⑤ Schmerzfreies Fenster respektieren (Goldilocks)"},
+  {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Trizeps",w:"SS mit Split Squat (Set 1–3)",u:0},
+  {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"SS mit Split Squat (Set 4–5)",u:1},
+  {id:"banded-barbell-back-squat",n:"Banded Barbell Back Squat",s:3,rp:"6-8",tp:"2-1-1-0",rs:0,ss:1,m:"Quads, Glutes, Core",w:"Physio – Langhantel + Band um Knie. ⚠️ Nicht zu tief – Spiegel nutzen, Knie beobachten. Superset mit OHP",u:0,h:"Langer Femur: Heel Elevation, breiterer Stand"},
+  {id:"db-ohp",n:"DB Overhead Press",s:3,rp:"12-15",tp:"2-0-1-0",rs:75,m:"Schultern, Trizeps",w:"SS mit Banded Back Squat",u:0},
+  {id:"sl-rdl",n:"SL RDL (LH)",s:3,rp:"10",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes, Hüftstabilität",w:"Langhantel. Bei linkem Standbein etwas nach rechts eindrehen. ⚠️ Rechts: erst Glutes aktivieren, dann runter – nicht zu tief, schnell hoch. Superset mit Lateral Raises",u:1},
+  {id:"db-lat-raise",n:"Lateral Raises",s:3,rp:"12-15",tp:"2-0-1-0",rs:60,m:"Seitl. Schulter",w:"Schulter-Kappe (mittlerer Delt). SS mit SL RDL",u:0}
 ]},
 3:{name:"Tag 3",label:"Heavy Compounds + Rehab",icon:"🏋️",loc:"Gym (FitInn)",wu:[
   {id:"w1",n:"90/90 Transitions",r:"10"},
