@@ -250,7 +250,7 @@ function App(){
     const pv=prev&&prev.vol>0?prev.vol:null;
     const durH=Math.floor(curW.dur/60),durM=curW.dur%60;const durStr=durH>0?durH+'h '+durM+' Min':curW.dur+' Min';
     const volDiff=pv!=null?curW.vol-pv:null;const volPct=pv!=null?((volDiff/pv)*100).toFixed(0):null;
-    // Exercise progressions – weighted and bodyweight separately
+    // Exercise progressions – weighted (volume-based) and bodyweight separately
     const progs=[],regs=[];
     // BW reps: sum all reps across sets for noKg exercises
     const bwExIds=plan.ex.filter(e=>e.noKg||e.iso).map(e=>e.id);
@@ -262,15 +262,22 @@ function App(){
       const cur=curW.exs?.[ex.id],old=prev.exs?.[ex.id];if(!cur||!old)return;
       const cSets=cur.filter(s=>!s.isW),oSets=old.filter(s=>!s.isW);
       if(!cSets.length||!oSets.length)return;
+      // Calculate per-exercise volume (sum of kg*reps across all sets)
+      const cVol=cSets.reduce((s,set)=>(parseFloat(set.kg||set.kR||0)||0)*(parseInt(set.reps||set.rR||0)||0)+s,0);
+      const oVol=oSets.reduce((s,set)=>(parseFloat(set.kg||set.kR||0)||0)*(parseInt(set.reps||set.rR||0)||0)+s,0);
       const cMax=Math.max(...cSets.map(s=>parseFloat(s.kg||s.kR||0)||0));
       const oMax=Math.max(...oSets.map(s=>parseFloat(s.kg||s.kR||0)||0));
-      const cReps=Math.max(...cSets.map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
-      const oReps=Math.max(...oSets.map(s=>parseInt(s.reps||s.rR||s.secs||s.sR||0)||0));
+      const cTotReps=cSets.reduce((s,set)=>s+(parseInt(set.reps||set.rR||0)||0),0);
+      const oTotReps=oSets.reduce((s,set)=>s+(parseInt(set.reps||set.rR||0)||0),0);
       const cleanN=ex.n.replace(/^[❤️⭐\s]+/u,'');
-      if(cMax>oMax)progs.push({n:cleanN,t:'kg',v:+(cMax-oMax).toFixed(1)});
-      else if(cMax===oMax&&cReps>oReps)progs.push({n:cleanN,t:'reps',v:cReps-oReps});
-      else if(cMax<oMax)regs.push({n:cleanN,t:'kg',v:+(oMax-cMax).toFixed(1)});
-      else if(cMax===oMax&&cReps<oReps)regs.push({n:cleanN,t:'reps',v:oReps-cReps});
+      if(cVol>oVol){
+        // Volume up – show volume increase
+        progs.push({n:cleanN,t:'vol',v:+(cVol-oVol).toFixed(0)});
+      } else if(cVol<oVol){
+        // Volume down – show context: how kg and reps changed
+        const kgDiff=+(cMax-oMax).toFixed(1);const repDiff=cTotReps-oTotReps;
+        regs.push({n:cleanN,t:'vol',v:+(oVol-cVol).toFixed(0),kgDiff,repDiff});
+      }
     })}
     return html`<div style=${{padding:'32px 20px',textAlign:'center',display:'flex',flexDirection:'column',alignItems:'center',minHeight:'100dvh'}}>
       <div style=${{marginBottom:24}}>
@@ -295,13 +302,13 @@ function App(){
       </div>`:null}
 
       ${progs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:12,textAlign:'left'}}>
-        <div style=${{fontSize:13,fontWeight:700,color:'var(--acc)',marginBottom:8}}>💪 Gesteigert bei ${progs.length} Übung${progs.length>1?'en':''}!</div>
-        ${progs.map(p=>html`<div style=${{fontSize:13,color:'var(--t2)',padding:'3px 0'}}>↗️ ${p.n}: +${p.v} ${p.t}</div>`)}
+        <div style=${{fontSize:13,fontWeight:700,color:'var(--acc)',marginBottom:8}}>💪 Volumen gesteigert bei ${progs.length} Übung${progs.length>1?'en':''}!</div>
+        ${progs.map(p=>html`<div style=${{fontSize:13,color:'var(--t2)',padding:'3px 0'}}>↗️ ${p.n}: +${p.v} kg Volumen</div>`)}
       </div>`:null}
 
       ${regs.length>0?html`<div class=glass style=${{width:'100%',padding:'16px',marginBottom:12,textAlign:'left',borderColor:'var(--dngB)'}}>
-        <div style=${{fontSize:13,fontWeight:700,color:'var(--dng)',marginBottom:8}}>📉 Weniger bei ${regs.length} Übung${regs.length>1?'en':''}:</div>
-        ${regs.map(r=>html`<div style=${{fontSize:13,color:'var(--t3)',padding:'3px 0'}}>↘️ ${r.n}: −${r.v} ${r.t}</div>`)}
+        <div style=${{fontSize:13,fontWeight:700,color:'var(--dng)',marginBottom:8}}>📉 Weniger Volumen bei ${regs.length} Übung${regs.length>1?'en':''}:</div>
+        ${regs.map(r=>html`<div style=${{fontSize:13,color:'var(--t3)',padding:'3px 0'}}>↘️ ${r.n}: −${r.v} kg Vol${r.kgDiff!==0?` (${r.kgDiff>0?'+':''}${r.kgDiff} kg${r.repDiff!==0?', ':''}${r.repDiff!==0?(r.repDiff>0?'+':'')+r.repDiff+' Reps':''})`:`${r.repDiff!==0?' ('+(r.repDiff>0?'+':'')+r.repDiff+' Reps)':''}`}</div>`)}
       </div>`:null}
 
       ${curW.cmt?html`<div class=glass style=${{width:'100%',padding:'14px 18px',marginBottom:12,textAlign:'left'}}>
