@@ -88,7 +88,6 @@ export const LEGACY_ID_MAP={
   '1:e1':'rdl','1:e2':'hip-thrust','1:e3':'bw-squat','1:e4':'sb-leg-curl',
   '1:e5':'tempo-split-squat','1:e6':'standing-hip-flex','1:e7':'sl-calf-raise','1:e8':'copenhagen-plank',
   // Tag 2 v3→v4 renames
-  '2:deep-box-split-squat':'split-squat',
   '2:banded-box-squat':'banded-barbell-back-squat',
   '2:e1':'pull-up-band','2:e2':'inverted-row','2:e3':'db-ohp','2:e4':'db-lat-raise',
   '2:e5':'db-hammer','2:e6':'db-tri-ext','2:e7':'serratus-raise','2:e8':'bar-hang',
