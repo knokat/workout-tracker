@@ -57,7 +57,7 @@ ex:[
   {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"12-15",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"Höhere Reps / leichteres Gewicht – ZNS-Erholung nach Banded Squat",u:0},
   {id:"sl-rdl",n:"SL RDL",s:3,rp:"10",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes, Hüftstabilität",w:"Bei linkem Standbein etwas nach rechts eindrehen. ⚠️ Rechts: erst Glutes aktivieren, dann runter – nicht zu tief, schnell hoch. Mehr Reps / weniger Gewicht bis Technik sitzt. Barbell als Stabilisierungshilfe testen. Superset mit SL Calf Raise",u:1},
   {id:"sl-calf-raise",n:"SL Calf Raise",s:2,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Gastrocnemius",w:"Superset mit Lateral Raises",u:1},
-  {id:"db-lat-raise-t2",n:"Lateral Raises",s:3,rp:"12-15",tp:"2-0-1-0",rs:60,m:"Seitl. Schulter",w:"Schulter-Kappe (mittlerer Delt)",u:0}
+  {id:"db-lat-raise",n:"Lateral Raises",s:3,rp:"12-15",tp:"2-0-1-0",rs:60,m:"Seitl. Schulter",w:"Schulter-Kappe (mittlerer Delt)",u:0}
 ]},
 3:{name:"Tag 3",label:"Heavy Compounds + Rehab",icon:"🏋️",loc:"Gym (FitInn)",wu:[
   {id:"w1",n:"90/90 Transitions",r:"10"},
