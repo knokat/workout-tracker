@@ -16,6 +16,7 @@ export const PLAN_V2_DATE='2026-04-01'; // v2 starts April 2026
 export const PLAN_V4_DATE='2026-04-14'; // v4 starts 14 April 2026
 export const PLAN_V5_DATE='2026-04-24'; // v5 starts 24 April 2026 – Schulter-Upgrade + Neg. Klimmzüge
 export const PLAN_V6_DATE='2026-04-27'; // v6 starts 27 April 2026 – Figure-Level Schultern, TRX Leg Curl, Hammer Curls, Adduction→Warmup
+export const PLAN_VERSION='v6';
 export const PLAN_V1_LABELS={1:"Lower Body",2:"Upper Body",3:"Full Body"};
 export const PLAN_V2_LABELS={1:"Hinge + Pull",2:"Squat + Push",3:"Heavy Compounds"};
 
