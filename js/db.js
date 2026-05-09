@@ -15,8 +15,8 @@ export async function dbLoad(uid){
       if(el.note)nts[el.exercise_id]=el.note;}
     out.push({id:w.id,day:w.day,date:w.date,vol:Number(w.volume),dur:w.duration,exs,nts});}return out;}
 
-export async function dbSave(uid,day,exD,nts,astD,vol,dur){
-  const{data:w,error}=await sb.from('workouts').insert({user_id:uid,day,volume:vol,duration:dur}).select().single();
+export async function dbSave(uid,day,exD,nts,astD,vol,dur,planVersion,workoutName){
+  const{data:w,error}=await sb.from('workouts').insert({user_id:uid,day,volume:vol,duration:dur,plan_version:planVersion||null,workout_name:workoutName||null}).select().single();
   if(error){console.error(error);return null;}
   for(const[eid,sets]of Object.entries(exD)){
     if(!Array.isArray(sets)||!sets.length)continue;
