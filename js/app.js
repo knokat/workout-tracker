@@ -1,7 +1,7 @@
 // app.js – Hauptkomponente, Auth, Screens, State (Redesign v2)
 
 import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
-import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V4_DATE, PLAN_V5_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS } from './plans.js';
+import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V4_DATE, PLAN_V5_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS, PLAN_VERSION } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
 import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct, dbDelWorkout } from './db.js';
 import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart, Calendar } from './components.js';
@@ -79,7 +79,8 @@ function App(){
     return null;
   };
   const finish=async()=>{setSaving(true);const dur=stT?(Date.now()-stT)/60000:0;const vol=calcVol(wd);
-    await dbSave(user.id,day,wd,nts,ast,vol,Math.round(dur));if(user)await dbDlAct(user.id);
+    const wName=PLANS[day]?.label||null;
+    await dbSave(user.id,day,wd,nts,ast,vol,Math.round(dur),PLAN_VERSION,wName);if(user)await dbDlAct(user.id);
     const w={id:Date.now().toString(),day,date:new Date().toISOString(),exs:wd,nts,vol,dur:Math.round(dur),cmt:wCmt};
     setAll(p=>[...p,w]);setCurW(w);setHasA(false);setActR(null);setSaving(false);setScr('summary')};
   const navTo=s=>{setScr(s);if(s==='history')setDay(null)};
