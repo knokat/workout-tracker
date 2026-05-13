@@ -21,9 +21,9 @@ export const PLAN_VERSION='v7';
 export const PLAN_V1_LABELS={1:"Lower Body",2:"Upper Body",3:"Full Body"};
 export const PLAN_V2_LABELS={1:"Hinge + Pull",2:"Squat + Push",3:"Heavy Compounds"};
 export const PLAN_V6_LABELS={1:"Hinge + Pull",2:"Squat + Push",3:"Heavy Compounds + Shoulders"};
-export const PLAN_V7_LABELS={1:"Stability + Pull",2:"Squat + Push",3:"Gym Compounds"};
+export const PLAN_V7_LABELS={1:"H1: SL RDL + Abduction",2:"H2: Split Squat + Hip Thrust + SLDL",3:"G3: LH Squat + SL Ext"};
 
-export const PLANS={1:{name:"Tag 1",label:"Stability + Pull",icon:"🦵",loc:"HomeGym",
+export const PLANS={1:{name:"Tag 1",label:"H1: SL RDL + Abduction",icon:"🦵",loc:"HomeGym",
 wu:[
   {id:"w1",n:"90/90 Transitions",r:"10"},
   {id:"w2",n:"Hip Flexor Lunges",r:"10/S"},
@@ -40,7 +40,7 @@ ex:[
   {id:"db-ohp",n:"Seated LH OHP",s:3,rp:"8-10",tp:"2-0-1-0",rs:75,m:"Schultern, Trizeps",w:"Halten. SS mit Abduction Set 1-3",u:0},
   {id:"neg-pull-up",n:"Negative Klimmzüge (Neutral Grip)",s:3,rp:"3-5",tp:"0-0-5-0",rs:90,m:"Lats, Bizeps, Core",w:"Steigern – langsam runterlassen (5s exzentrisch)",u:0,noKg:1},
 ]},
-2:{name:"Tag 2",label:"Squat + Push",icon:"💪",loc:"HomeGym",wu:[
+2:{name:"Tag 2",label:"H2: Split Squat + Hip Thrust + SLDL",icon:"💪",loc:"HomeGym",wu:[
   {id:"w1",n:"90/90 Transitions",r:"10"},
   {id:"w2",n:"Hip Flexor Lunges",r:"10/S"},
   {id:"w3",n:"Banded Clamshells",r:"3×10/S",nt:"Physio – schweres Band!",sets:"3 Sets × 10 Reps/Seite"},
@@ -55,7 +55,7 @@ ex:[
   {id:"rdl",n:"❤️ Stiff-Leg Deadlift (LH)",s:3,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Hamstrings – höhere Reps, moderate Last. Superset mit Hammer Curls",u:0},
   {id:"bicep-curl",n:"❤️ Hammer Curls",s:3,rp:"12",tp:"2-1-1-0",rs:60,m:"Bizeps, Brachialis",w:"Halten. Brachialis + Brachioradialis. Neutral Grip (Daumen oben)",u:0},
 ]},
-3:{name:"Tag 3",label:"Gym Compounds",icon:"🏋️",loc:"Gym (FitInn)",wu:[
+3:{name:"Tag 3",label:"G3: LH Squat + SL Ext",icon:"🏋️",loc:"Gym (FitInn)",wu:[
   {id:"w1",n:"90/90 Transitions",r:"10"},
   {id:"w2",n:"Hip Flexor Lunges",r:"10/S"},
   {id:"w3",n:"HG IR/AR Übung",r:"3×10/Seite",nt:"Physio",sets:"3 Sets × 10 Reps/Seite"},
