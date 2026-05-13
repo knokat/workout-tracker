@@ -3,7 +3,7 @@
 import { html, render, useState, useEffect, useRef } from 'https://unpkg.com/htm/preact/standalone.module.js';
 import { PLANS, LEGACY_ID_MAP, PLAN_V2_DATE, PLAN_V4_DATE, PLAN_V5_DATE, PLAN_V6_DATE, PLAN_V7_DATE, PLAN_V1_LABELS, PLAN_V2_LABELS, PLAN_V6_LABELS, PLAN_V7_LABELS, PLAN_VERSION } from './plans.js';
 import { eS, eU, iSets, calcVol } from './helpers.js';
-import { sb, dbLoad, dbSave, dbSvAct, dbLdAct, dbDlAct, dbDelWorkout } from './db.js';
+import { sb, dbLoadMeta, dbLoadFull, dbSave, dbSvAct, dbLdAct, dbDlAct, dbDelWorkout } from './db.js';
 import { Timer, EC, WU, WUT, FC, WorkoutTimer, BottomNav, VolumeChart, DonutChart, Calendar } from './components.js';
 
 /* ── Day Icons (SVG) ── */
@@ -20,7 +20,7 @@ function App(){
   const[wd,setWd]=useState({});const[nts,setNts]=useState({});const[ast,setAst]=useState({});
   const[optE,setOptE]=useState({});const[stT,setStT]=useState(null);const[wuCk,setWuCk]=useState({});
   const[wCmt,setWCmt]=useState('');
-  const[all,setAll]=useState([]);const[ld,setLd]=useState(true);
+  const[all,setAll]=useState([]);const[ld,setLd]=useState(true);const[fullLd,setFullLd]=useState(false);
   const[curW,setCurW]=useState(null);const[hasA,setHasA]=useState(false);const[actR,setActR]=useState(null);
   const[aErr,setAErr]=useState('');const[em,setEm]=useState('');const[pw,setPw]=useState('');const[isR,setIsR]=useState(false);
   const svT=useRef(null);const[saving,setSaving]=useState(false);const[aFilter,setAFilter]=useState('all');
@@ -29,8 +29,13 @@ function App(){
   useEffect(()=>{sb.auth.getSession().then(({data})=>{if(data.session?.user)setUser(data.session.user);setALd(false)});
     const{data:l}=sb.auth.onAuthStateChange((_,s)=>setUser(s?.user||null));return()=>l.subscription.unsubscribe()},[]);
   useEffect(()=>{if(!user)return;
-    dbLdAct(user.id).then(a=>{if(a){setHasA(true);setActR(a)}});
-    dbLoad(user.id).then(w=>{setAll(w||[]);setLd(false)});
+    // Phase 1: Load meta + active workout in parallel (fast → Home Screen)
+    Promise.all([dbLoadMeta(user.id),dbLdAct(user.id)]).then(([w,a])=>{
+      setAll(w||[]);setLd(false);
+      if(a){setHasA(true);setActR(a)}
+      // Phase 2: Full load with exercise details in background
+      dbLoadFull(user.id).then(fw=>{setAll(fw||[]);setFullLd(true)});
+    });
   },[user]);
   useEffect(()=>{if(scr!=='workout'||!day||!user)return;clearTimeout(svT.current);svT.current=setTimeout(()=>dbSvAct(user.id,day,wd,nts,ast,optE,stT,wuCk,wCmt),500);return()=>clearTimeout(svT.current)},[wd,nts,ast,optE,wuCk,wCmt]);
 
@@ -328,6 +333,7 @@ function App(){
      ANALYTICS SCREEN
      ══════════════════════════════════════════════ */
   if(scr==='analytics'){
+    if(!fullLd)return html`<div style=${{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh',color:'var(--acc)',fontSize:16,fontFamily:'var(--mono)'}}>Details laden...</div>`;
     // Build exercise list from all plans
     const allExercises=[];Object.values(PLANS).forEach(p=>p.ex.forEach(e=>{if(!allExercises.find(x=>x.id===e.id))allExercises.push({id:e.id,n:e.n,day:p.name})}));
     // Build workout-name filter options (unique labels across all workouts)
