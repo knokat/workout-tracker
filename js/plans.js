@@ -52,7 +52,7 @@ ex:[
   {id:"face-pull",n:"Face Pull",s:3,rp:"12-15",tp:"2-0-1-2",rs:60,m:"Hinterer+Seitl. Delt",w:"Halten (Rear Delts). SS mit Split Squat Set 1-3",u:0},
   {id:"sl-hip-thrust",n:"SL Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:0,ss:1,m:"Glutes",w:"Physio. LH im Rack. Superset mit Tri Pushdown",u:1},
   {id:"cable-tri",n:"Cable Tri Pushdown",s:3,rp:"10-12",tp:"2-1-1-0",rs:60,m:"Trizeps",w:"Halten. SS mit SL Hip Thrust",u:0},
-  {id:"rdl",n:"❤️ Stiff-Leg Deadlift (LH)",s:3,rp:"12-15",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Hamstrings – höhere Reps, moderate Last. Superset mit Hammer Curls",u:0},
+  {id:"rdl",n:"❤️ Stiff-Leg Deadlift (LH)",s:3,rp:"6-8",tp:"2-1-1-0",rs:0,ss:1,m:"Hamstrings, Glutes",w:"Hamstrings, schwer. Superset mit Hammer Curls",u:0},
   {id:"bicep-curl",n:"❤️ Hammer Curls",s:3,rp:"12",tp:"2-1-1-0",rs:60,m:"Bizeps, Brachialis",w:"Halten. Brachialis + Brachioradialis. Neutral Grip (Daumen oben)",u:0},
 ]},
 3:{name:"Tag 3",label:"G3: LH Squat + SL Ext",icon:"🏋️",loc:"Gym (FitInn)",wu:[
@@ -68,7 +68,7 @@ ex:[
   {id:"banded-barbell-back-squat",n:"LH Squat (Banded, Box)",s:4,rp:"10-12",tp:"2-1-1-0",rs:90,m:"Quads, Glutes, Core",w:"Physio. Langhantel + Band um Knie, auf Box. Heel Elevation",u:0,g:"MULTI 5",h:"Langer Femur: Heel Elevation, breiterer Stand"},
   {id:"pull-up-mach",n:"❤️ Klimmzug-Progr.",s:4,rp:"6-8",tp:"1-0-1-0",rs:90,m:"Lats, Bizeps, Core",w:"Steigern. Maschine-Assisted",u:0,ast:1,g:"MULTI 7"},
   {id:"sl-leg-ext",n:"SL Leg Extension",s:3,rp:"10-12",tp:"3-1-1-0",rs:30,m:"Quads, Patella",w:"Physio: Knie-Rehab",u:1,g:"BEINE 1A 🏷️"},
-  {id:"rdl",n:"⭐ ❤️ Stiff-Leg Deadlift (LH)",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Hamstrings, Glutes",w:"Optional – Hamstrings, schwer",u:0,opt:1,g:"GEWICHTE"},
+  {id:"rdl",n:"⭐ ❤️ Stiff-Leg Deadlift (LH)",s:3,rp:"6-8",tp:"2-1-1-0",rs:75,m:"Hamstrings, Glutes",w:"Optional – Hamstrings, schwer",u:0,opt:1,g:"GEWICHTE"},
   {id:"hip-thrust",n:"⭐ ❤️ Barbell Hip Thrust",s:3,rp:"10-12",tp:"2-1-1-0",rs:75,m:"Glutes, Hamstrings",w:"Optional – Beidbeinig, schwer",u:0,opt:1,g:"GESÄSS 3F 🏷️"},
   {id:"machine-lat-raise",n:"Machine Lateral Raise",s:3,rp:"12-15",tp:"2-0-1-0",rs:60,m:"Seitl. Schulter",w:"Halten. Side Delts – Schultern deprimiert halten, bis knapp über parallel",u:0,g:"SCHULTERN 3 🏷️",h:"① Sitz so einstellen, dass Schultern mit Drehachse der Maschine aligned sind\n② Körper aufrecht/leicht zurück, NICHT nach vorne lehnen\n③ Bis knapp über parallel heben, Pause oben optional\n④ Langsam runter – Side Delts aktiv die ganze Zeit\n⑤ Schultern UNTEN halten (nicht shrugging → sonst Traps)\n⑥ Drop Sets möglich (Selectorized)"},
 ]}};
