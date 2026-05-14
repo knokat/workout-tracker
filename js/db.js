@@ -5,15 +5,29 @@ import { PLANS } from './plans.js';
 
 export const sb = createClient('https://zkqfeqtnoxgoepmykupd.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprcWZlcXRub3hnb2VwbXlrdXBkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDU3NzcsImV4cCI6MjA4Nzg4MTc3N30.Uz4VTfFd76SNiP8HxOr_NFl-O1GuTPMNpQ9cZXig89E');
 
-export async function dbLoad(uid){
-  const{data:ws}=await sb.from('workouts').select('*').eq('user_id',uid).order('date',{ascending:true});
-  const out=[];for(const w of(ws||[])){
-    const{data:els}=await sb.from('exercise_logs').select('*').eq('workout_id',w.id);
-    const exs={},nts={};for(const el of(els||[])){
-      const{data:sl}=await sb.from('set_logs').select('*').eq('exercise_log_id',el.id).order('set_number');
-      exs[el.exercise_id]=(sl||[]).map(s=>s.is_unilateral?{rR:s.reps_r||"",kR:String(s.kg_r||""),rL:s.reps_l||"",kL:String(s.kg_l||""),sR:s.secs_r||"",sL:s.secs_l||"",isW:s.is_warmup}:{reps:s.reps||"",kg:String(s.kg||""),secs:s.secs||"",isW:s.is_warmup,mvKg:s.moved_kg||0});
-      if(el.note)nts[el.exercise_id]=el.note;}
-    out.push({id:w.id,day:w.day,date:w.date,vol:Number(w.volume),dur:w.duration,exs,nts});}return out;}
+// Fast load: only workout metadata (1 query). For Home Screen.
+export async function dbLoadMeta(uid){
+  const{data:ws}=await sb.from('workouts').select('id,day,date,volume,duration,plan_version,workout_name').eq('user_id',uid).order('date',{ascending:true});
+  return(ws||[]).map(w=>({id:w.id,day:w.day,date:w.date,vol:Number(w.volume),dur:w.duration,planV:w.plan_version,wName:w.workout_name,exs:null,nts:null}));
+}
+
+// Full load: workout + exercise + set details in 1 query using Supabase foreign-key joins.
+export async function dbLoadFull(uid){
+  const{data:ws}=await sb.from('workouts')
+    .select('id,day,date,volume,duration,plan_version,workout_name,exercise_logs(id,exercise_id,note,set_logs(set_number,reps,kg,secs,reps_r,kg_r,secs_r,reps_l,kg_l,secs_l,is_unilateral,is_warmup,bodyweight,assistance,moved_kg))')
+    .eq('user_id',uid).order('date',{ascending:true});
+  return(ws||[]).map(w=>{
+    const exs={},nts={};
+    for(const el of(w.exercise_logs||[])){
+      const sorted=(el.set_logs||[]).sort((a,b)=>a.set_number-b.set_number);
+      exs[el.exercise_id]=sorted.map(s=>s.is_unilateral
+        ?{rR:s.reps_r||"",kR:String(s.kg_r||""),rL:s.reps_l||"",kL:String(s.kg_l||""),sR:s.secs_r||"",sL:s.secs_l||"",isW:s.is_warmup}
+        :{reps:s.reps||"",kg:String(s.kg||""),secs:s.secs||"",isW:s.is_warmup,mvKg:s.moved_kg||0});
+      if(el.note)nts[el.exercise_id]=el.note;
+    }
+    return{id:w.id,day:w.day,date:w.date,vol:Number(w.volume),dur:w.duration,exs,nts};
+  });
+}
 
 export async function dbSave(uid,day,exD,nts,astD,vol,dur,planVersion,workoutName){
   const{data:w,error}=await sb.from('workouts').insert({user_id:uid,day,volume:vol,duration:dur,plan_version:planVersion||null,workout_name:workoutName||null}).select().single();
